@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import Nav from '@components/Nav.svelte';
-	import Breadcrumbs from '@components/Breadcrumbs.svelte';
 	let { children } = $props();
 </script>
 <Nav />
