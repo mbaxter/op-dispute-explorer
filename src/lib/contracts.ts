@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import type {Network} from "./network";
 import type { Address } from "./eth";
 import { getRpcProvider } from "./rpc";
+import pLimit from 'p-limit';
 
 const SystemConfigAbi = [
     "function disputeGameFactory() external view returns (address addr_)",
@@ -24,6 +25,22 @@ export type DisputeGame = {
     proxy: Address;
 }
 
+type DisputeGamesOptions = {
+    fromIndex?: number;
+    toIndex?: number;
+    batchSize?: number;
+    concurrency?: number;
+    signal?: AbortSignal;
+}
+
+type RequiredDisputeGamesOptions = Required<Omit<DisputeGamesOptions, 'signal'>> & Pick<DisputeGamesOptions, 'signal'>;
+const DEFAULT_OPTIONS: RequiredDisputeGamesOptions = {
+    fromIndex: 0,
+    toIndex: -1,
+    batchSize: 100,
+    concurrency: 5
+};
+
 export class OpContracts {
     private readonly l1Provider: ethers.JsonRpcProvider;
 
@@ -45,33 +62,43 @@ export class OpContracts {
         return optimismPortal;
     }
 
-    async *getDisputeGames(batchSize: number, signal?: AbortSignal): AsyncGenerator<DisputeGame[]> {
+    async *getDisputeGames(options: DisputeGamesOptions = {}): AsyncGenerator<DisputeGame[]> {
+        const opts: RequiredDisputeGamesOptions = { ...DEFAULT_OPTIONS, ...options };
+        const limit = pLimit(opts.concurrency);
+        
         try {
             const disputeGameFactory = await this.getDisputeGameFactory();
             const disputeGameFactoryContract = new ethers.Contract(disputeGameFactory, DisputeGameFactoryAbi, this.l1Provider);
             const gameCount = await disputeGameFactoryContract.gameCount();
             
-            for (let i = Number(gameCount) - 1; i >= 0; i -= batchSize) {
-                if (signal?.aborted) break;
-                const promises: Array<() => Promise<DisputeGame>> = [];
-                const start = Math.max(i - batchSize + 1, 0);
+            for (let i = Number(gameCount) - 1; i >= 0; i -= opts.batchSize) {
+                if (opts.signal?.aborted) {
+                    limit.clearQueue();
+                    break;
+                }
+                const promises: Array<Promise<DisputeGame>> = [];
+                const start = Math.max(i - opts.batchSize + 1, 0);
+                
                 for (let idx = i; idx >= start; idx--) {
-                    promises.push(async () => {
+                    // Wrap each promise with the limiter
+                    promises.push(limit(async () => {
                         const [gameType, timestamp, proxy] = await disputeGameFactoryContract.gameAtIndex(idx);
                         return {
                             index: idx,
-                            gameType: Number(gameType), // uint32
-                            timestamp: Number(timestamp), // uint64
-                            proxy: proxy as Address // address
+                            gameType: Number(gameType),
+                            timestamp: Number(timestamp),
+                            proxy: proxy as Address
                         }
-                    });
+                    }));
                 }
                 
-                // Execute batch
-                yield await Promise.all(promises.map(fn => fn()));
+                yield await Promise.all(promises);
             }
         } catch (e) {
-            if (signal?.aborted) return;
+            if (opts.signal?.aborted) {
+                limit.clearQueue();
+                return;
+            }
             throw e;
         }
     }

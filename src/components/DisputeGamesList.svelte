@@ -23,7 +23,7 @@
             if (!network) return;
             games = []; // Reset games
             const contracts = new OpContracts(network);
-            for await (const batch of contracts.getDisputeGames(100, controller.signal)) {
+            for await (const batch of contracts.getDisputeGames({signal: controller.signal})) {
                 games = [...games, ...batch];
             }
         } catch (e) {
