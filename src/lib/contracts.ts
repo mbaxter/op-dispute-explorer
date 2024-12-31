@@ -25,7 +25,8 @@ export type DisputeGame = {
     proxy: Address;
 }
 
-type DisputeGamesOptions = {
+export type DisputeGamesOptions = {
+    // Indexes are inclusive and can be negative to index from the end of the games
     fromIndex?: number;
     toIndex?: number;
     batchSize?: number;
@@ -43,6 +44,8 @@ const DEFAULT_OPTIONS: RequiredDisputeGamesOptions = {
 
 export class OpContracts {
     private readonly l1Provider: ethers.JsonRpcProvider;
+    private disputeGameFactoryAddress?: Address;
+    private disputeGameFactoryContract?: ethers.Contract;
 
     constructor(
         private readonly network: Network
@@ -51,9 +54,19 @@ export class OpContracts {
     }
 
     async getDisputeGameFactory(): Promise<Address> {
-        const systemConfig = new ethers.Contract(this.network.systemConfigAddress, SystemConfigAbi, this.l1Provider);
-        const disputeGameFactory = await systemConfig.disputeGameFactory();
-        return disputeGameFactory;
+        if (!this.disputeGameFactoryAddress) {
+            const systemConfig = new ethers.Contract(this.network.systemConfigAddress, SystemConfigAbi, this.l1Provider);
+            this.disputeGameFactoryAddress = await systemConfig.disputeGameFactory();
+        }
+        return this.disputeGameFactoryAddress as Address;
+    }
+
+    private async getDisputeGameFactoryContract(): Promise<ethers.Contract> {
+        if (!this.disputeGameFactoryContract) {
+            const address = await this.getDisputeGameFactory();
+            this.disputeGameFactoryContract = new ethers.Contract(address, DisputeGameFactoryAbi, this.l1Provider);
+        }
+        return this.disputeGameFactoryContract;
     }
 
     async getOptimismPortal(): Promise<Address> {
@@ -62,16 +75,34 @@ export class OpContracts {
         return optimismPortal;
     }
 
+    async getGameCount(): Promise<number> {
+        const contract = await this.getDisputeGameFactoryContract();
+        const gameCount = await contract.gameCount();
+        return Number(gameCount);
+    }
+
     async *getDisputeGames(options: DisputeGamesOptions = {}): AsyncGenerator<DisputeGame[]> {
         const opts: RequiredDisputeGamesOptions = { ...DEFAULT_OPTIONS, ...options };
         const limit = pLimit(opts.concurrency);
         
         try {
-            const disputeGameFactory = await this.getDisputeGameFactory();
-            const disputeGameFactoryContract = new ethers.Contract(disputeGameFactory, DisputeGameFactoryAbi, this.l1Provider);
-            const gameCount = await disputeGameFactoryContract.gameCount();
+            const disputeGameFactoryContract = await this.getDisputeGameFactoryContract();
+            let toIndex = opts.toIndex;
+            let fromIndex = opts.fromIndex;
+            const gameCount = await this.getGameCount();
+            // Define negative indexes relative to gameCount
+            if (toIndex < 0) {
+                toIndex = gameCount + toIndex;
+            }
+            if (fromIndex < 0) {
+                fromIndex = gameCount + fromIndex;
+            }
+            if (toIndex < fromIndex) {
+                // Reverse
+                [toIndex, fromIndex] = [fromIndex, toIndex];
+            }
             
-            for (let i = Number(gameCount) - 1; i >= 0; i -= opts.batchSize) {
+            for (let i = toIndex; i >= fromIndex; i -= opts.batchSize) {
                 if (opts.signal?.aborted) {
                     limit.clearQueue();
                     break;
