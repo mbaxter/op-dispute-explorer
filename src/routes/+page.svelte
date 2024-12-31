@@ -1,7 +1,7 @@
 <script>
 
-	import DisputeGamesList from "@components/DisputeGamesList.svelte";
+	import DisputesDashboard from "@components/DisputesDashboard.svelte";
 
 </script>
 
-<DisputeGamesList />
+<DisputesDashboard />

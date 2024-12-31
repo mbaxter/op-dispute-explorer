@@ -1,11 +1,13 @@
 <script lang="ts">
     import { OpContracts, type DisputeGame } from "@lib/contracts";
 	import { NETWORKS, type Network } from "@lib/network";
-    import DisputeGamesTable from './DisputeGamesTable.svelte';
+    import GameList from '@components/GameList.svelte';
+	import Spinner from "@components/Spinner.svelte";
 
     let network: Network | null = $state(null);
     let games:DisputeGame[] = $state([]);
     let controller:AbortController = $state(new AbortController());
+    let loadingCounter:number = $state(0);
 
     console.log("test");
 
@@ -19,6 +21,7 @@
         console.log(`Loading games for network '${network?.name}'`);
 
         cancel();
+        loadingCounter += 1;
         try {
             if (!network) return;
             games = []; // Reset games
@@ -28,6 +31,8 @@
             }
         } catch (e) {
             if (!controller.signal.aborted) throw e;
+        } finally {
+            loadingCounter -= 1;
         }
     };
 </script>
@@ -42,11 +47,15 @@
             <option value={network}>{network.name}</option>
         {/each}
     </select>
-    <button onclick={(e) => cancel()}>Cancel</button>
+    {#if loadingCounter > 0}
+        <Spinner />
+        <button onclick={(e) => cancel()}>Cancel</button>
+    {/if}
 </div>
 
 {#if network}
     <div>
-        <DisputeGamesTable {games} />
+        <GameList {games} />
     </div>
 {/if}
+
