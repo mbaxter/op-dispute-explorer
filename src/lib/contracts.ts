@@ -1,8 +1,7 @@
-import { ethers } from "ethers";
+import { ethers, type JsonRpcProvider } from "ethers";
 import type {Network} from "./network";
 import type { Address } from "./eth";
 import { getRpcProvider } from "./rpc";
-import pLimit from 'p-limit';
 
 const SystemConfigAbi = [
     "function disputeGameFactory() external view returns (address addr_)",
@@ -43,7 +42,7 @@ const DEFAULT_OPTIONS: RequiredDisputeGamesOptions = {
 };
 
 export class OpContracts {
-    private readonly l1Provider: ethers.JsonRpcProvider;
+    private readonly l1Provider: JsonRpcProvider;
     private disputeGameFactoryAddress?: Address;
     private disputeGameFactoryContract?: ethers.Contract;
 
@@ -83,7 +82,6 @@ export class OpContracts {
 
     async *getDisputeGames(options: DisputeGamesOptions = {}): AsyncGenerator<DisputeGame[]> {
         const opts: RequiredDisputeGamesOptions = { ...DEFAULT_OPTIONS, ...options };
-        const limit = pLimit(opts.concurrency);
         
         try {
             const disputeGameFactoryContract = await this.getDisputeGameFactoryContract();
@@ -103,16 +101,13 @@ export class OpContracts {
             }
             
             for (let i = toIndex; i >= fromIndex; i -= opts.batchSize) {
-                if (opts.signal?.aborted) {
-                    limit.clearQueue();
-                    break;
-                }
+                if (opts.signal?.aborted) break;
+                
                 const promises: Array<Promise<DisputeGame>> = [];
                 const start = Math.max(i - opts.batchSize + 1, 0);
                 
                 for (let idx = i; idx >= start; idx--) {
-                    // Wrap each promise with the limiter
-                    promises.push(limit(async () => {
+                    promises.push((async () => {
                         const [gameType, timestamp, proxy] = await disputeGameFactoryContract.gameAtIndex(idx);
                         return {
                             index: idx,
@@ -120,16 +115,13 @@ export class OpContracts {
                             timestamp: Number(timestamp),
                             proxy: proxy as Address
                         }
-                    }));
+                    })());
                 }
                 
                 yield await Promise.all(promises);
             }
         } catch (e) {
-            if (opts.signal?.aborted) {
-                limit.clearQueue();
-                return;
-            }
+            if (opts.signal?.aborted) return;
             throw e;
         }
     }
