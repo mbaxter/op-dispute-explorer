@@ -45,37 +45,42 @@ export class OpContracts {
     private readonly l1Provider: JsonRpcProvider;
     private disputeGameFactoryAddress?: Address;
     private disputeGameFactoryContract?: ethers.Contract;
-
-    constructor(
-        private readonly network: Network
-    ) {
+    private readonly network: Network;
+    constructor(network: Network) {
+        this.network = network;
         this.l1Provider = getRpcProvider(network.l1RpcUrl);
     }
 
-    async getDisputeGameFactory(): Promise<Address> {
-        if (!this.disputeGameFactoryAddress) {
-            const systemConfig = new ethers.Contract(this.network.systemConfigAddress, SystemConfigAbi, this.l1Provider);
-            this.disputeGameFactoryAddress = await systemConfig.disputeGameFactory();
-        }
-        return this.disputeGameFactoryAddress as Address;
+    #getL1Provider(batchSize: number = 100): JsonRpcProvider {
+        return getRpcProvider(this.network.l1RpcUrl, {batchSize});
     }
 
-    private async getDisputeGameFactoryContract(): Promise<ethers.Contract> {
+    #getSystemConfigContract(): ethers.Contract {
+        return new ethers.Contract(this.network.systemConfigAddress, SystemConfigAbi, this.l1Provider);
+    }
+
+    async #getDisputeGameFactoryContract(batchSize: number = 100): Promise<ethers.Contract> {
         if (!this.disputeGameFactoryContract) {
             const address = await this.getDisputeGameFactory();
-            this.disputeGameFactoryContract = new ethers.Contract(address, DisputeGameFactoryAbi, this.l1Provider);
+            const provider = this.#getL1Provider(batchSize);
+            this.disputeGameFactoryContract = new ethers.Contract(address, DisputeGameFactoryAbi, provider);
         }
         return this.disputeGameFactoryContract;
     }
 
+    async getDisputeGameFactory(): Promise<Address> {
+        if (!this.disputeGameFactoryAddress) {
+            this.disputeGameFactoryAddress = await this.#getSystemConfigContract().disputeGameFactory();
+        }
+        return this.disputeGameFactoryAddress as Address;
+    }
+
     async getOptimismPortal(): Promise<Address> {
-        const systemConfig = new ethers.Contract(this.network.systemConfigAddress, SystemConfigAbi, this.l1Provider);
-        const optimismPortal = await systemConfig.optimismPortal();
-        return optimismPortal;
+        return await this.#getSystemConfigContract().optimismPortal();
     }
 
     async getGameCount(): Promise<number> {
-        const contract = await this.getDisputeGameFactoryContract();
+        const contract = await this.#getDisputeGameFactoryContract();
         const gameCount = await contract.gameCount();
         return Number(gameCount);
     }
@@ -84,7 +89,7 @@ export class OpContracts {
         const opts: RequiredDisputeGamesOptions = { ...DEFAULT_OPTIONS, ...options };
         
         try {
-            const disputeGameFactoryContract = await this.getDisputeGameFactoryContract();
+            const disputeGameFactoryContract = await this.#getDisputeGameFactoryContract(opts.batchSize);
             let toIndex = opts.toIndex;
             let fromIndex = opts.fromIndex;
             const gameCount = await this.getGameCount();
@@ -99,12 +104,14 @@ export class OpContracts {
                 // Reverse
                 [toIndex, fromIndex] = [fromIndex, toIndex];
             }
-            
-            for (let i = toIndex; i >= fromIndex; i -= opts.batchSize) {
+
+
+            const chunkSize = opts.batchSize * opts.concurrency;
+            for (let i = toIndex; i >= fromIndex; i -= chunkSize) {
                 if (opts.signal?.aborted) break;
                 
                 const promises: Array<Promise<DisputeGame>> = [];
-                const start = Math.max(i - opts.batchSize + 1, 0);
+                const start = Math.max(i - chunkSize + 1, fromIndex);
                 
                 for (let idx = i; idx >= start; idx--) {
                     promises.push((async () => {
@@ -117,14 +124,15 @@ export class OpContracts {
                         }
                     })());
                 }
-                
-                yield await Promise.all(promises);
+
+                // Yield in batches
+                for (let j = 0; j < promises.length; j += opts.batchSize) {
+                    yield Promise.all(promises.slice(j, j + opts.batchSize));
+                }
             }
         } catch (e) {
             if (opts.signal?.aborted) return;
             throw e;
         }
     }
-
-
 }
