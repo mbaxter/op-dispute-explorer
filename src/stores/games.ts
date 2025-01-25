@@ -26,7 +26,8 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
 
     try {
         const contracts = new OpContracts(selectedNetwork);
-        const totalGames = await contracts.getGameCount();
+        const dgf = await contracts.getDisputeGameFactory();
+        const totalGames = await dgf.getGameCount();
         gameCount.set(totalGames);
         const options: OrderedSliceOptions = {
             signal: _controller.signal,
@@ -36,7 +37,7 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
             concurrency: 3,
             descending: true
         }
-        for await (const batch of contracts.getDisputeGames(options)) {
+        for await (const batch of dgf.getDisputeGames(options)) {
             games.update(current => [...current, ...batch]);
         }
         _lastLoadedIndex = from;
