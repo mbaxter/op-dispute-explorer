@@ -1,6 +1,5 @@
 import { writable, get } from 'svelte/store';
 import { OpContracts, type DisputeGame, type DisputeGamesOptions } from '@lib/contracts';
-import type { Network } from '@lib/network';
 import { network } from '@stores/network';
 
 // Stores
@@ -8,7 +7,7 @@ export const games = writable<DisputeGame[]>([]);
 export const loadingCounter = writable<number>(0);
 export const gameCount = writable<number>(0);
 
-const batchSize = 100;
+const gamesBatchSize = 300;
 // Internal state
 let _controller: AbortController = new AbortController();
 let _lastLoadedIndex: number = -1;
@@ -31,7 +30,9 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
         const options: DisputeGamesOptions = {
             signal: _controller.signal,
             toIndex: to,
-            fromIndex: from
+            fromIndex: from,
+            batchSize: 100,
+            concurrency: 3
         }
         for await (const batch of contracts.getDisputeGames(options)) {
             games.update(current => [...current, ...batch]);
@@ -65,11 +66,11 @@ export const cancelLoadGames = (): void => {
 
 export const loadMoreGames = async (): Promise<void> => {
     const to = _lastLoadedIndex - 1;
-    const from = to - batchSize;
+    const from = to - gamesBatchSize;
     return _loadGames(from, to);
 }
 
 // Function to fetch games for a given network
 export const loadGames = async (): Promise<void> => {
-    return _loadGames(-batchSize, -1);
+    return _loadGames(-gamesBatchSize, -1);
 };
