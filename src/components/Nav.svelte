@@ -13,7 +13,7 @@
 </script>
 
 <nav class="relative flex items-center p-4 bg-gray-100 shadow-md ">
-    <h1 class="text-2xl font-bold">Dispute Game Explorer</h1>
+    <h1 class="text-2xl font-bold" id="title">Dispute Game Explorer</h1>
     
     <div class="flex-1 flex justify-center items-center gap-2">
         <NavLinks />

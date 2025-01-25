@@ -2,6 +2,7 @@ import { ethers, type JsonRpcProvider } from "ethers";
 import type {Network} from "./network";
 import type { Address } from "./eth";
 import { getRpcProvider } from "./rpc";
+import { fetchOrderedSlice, type OrderedSliceOptions, type GetProvider } from "./fetch";
 
 const SystemConfigAbi = [
     "function disputeGameFactory() external view returns (address addr_)",
@@ -23,24 +24,6 @@ export type DisputeGame = {
     timestamp: number;
     proxy: Address;
 }
-
-export type DisputeGamesOptions = {
-    // Indexes are inclusive and can be negative to index from the end of the games
-    fromIndex?: number;
-    toIndex?: number;
-    batchSize?: number;
-    concurrency?: number;
-    signal?: AbortSignal;
-}
-
-type RequiredDisputeGamesOptions = Required<Omit<DisputeGamesOptions, 'signal'>> & Pick<DisputeGamesOptions, 'signal'>;
-const DEFAULT_OPTIONS: RequiredDisputeGamesOptions = {
-    fromIndex: 0,
-    toIndex: -1,
-    batchSize: 100,
-    concurrency: 5
-};
-
 export class OpContracts {
     private readonly l1Provider: JsonRpcProvider;
     private disputeGameFactoryAddress?: Address;
@@ -85,54 +68,25 @@ export class OpContracts {
         return Number(gameCount);
     }
 
-    async *getDisputeGames(options: DisputeGamesOptions = {}): AsyncGenerator<DisputeGame[]> {
-        const opts: RequiredDisputeGamesOptions = { ...DEFAULT_OPTIONS, ...options };
-        
-        try {
-            const disputeGameFactoryContract = await this.#getDisputeGameFactoryContract(opts.batchSize);
-            let toIndex = opts.toIndex;
-            let fromIndex = opts.fromIndex;
-            const gameCount = await this.getGameCount();
-            // Define negative indexes relative to gameCount
-            if (toIndex < 0) {
-                toIndex = gameCount + toIndex;
-            }
-            if (fromIndex < 0) {
-                fromIndex = gameCount + fromIndex;
-            }
-            if (toIndex < fromIndex) {
-                // Reverse
-                [toIndex, fromIndex] = [fromIndex, toIndex];
-            }
+    async *getDisputeGames(options: OrderedSliceOptions = {}): AsyncGenerator<DisputeGame[]> {
+        const factoryAddress = await this.getDisputeGameFactory();
 
+        const getTotalItems = async () => {
+            return await this.getGameCount();
+        };
 
-            const chunkSize = opts.batchSize * opts.concurrency;
-            for (let i = toIndex; i >= fromIndex; i -= chunkSize) {
-                if (opts.signal?.aborted) break;
-                
-                const promises: Array<Promise<DisputeGame>> = [];
-                const start = Math.max(i - chunkSize + 1, fromIndex);
-                
-                for (let idx = i; idx >= start; idx--) {
-                    promises.push((async () => {
-                        const [gameType, timestamp, proxy] = await disputeGameFactoryContract.gameAtIndex(idx);
-                        return {
-                            index: idx,
-                            gameType: Number(gameType),
-                            timestamp: Number(timestamp),
-                            proxy: proxy as Address
-                        }
-                    })());
-                }
+        const getElement = async (idx: number, getProvider: GetProvider): Promise<DisputeGame> => {
+            const provider = getProvider(this.network.l1RpcUrl);
+            const contract = new ethers.Contract(factoryAddress, DisputeGameFactoryAbi, provider);
+            const [gameType, timestamp, proxy] = await contract.gameAtIndex(idx);
+            return {
+                index: idx,
+                gameType: Number(gameType),
+                timestamp: Number(timestamp),
+                proxy: proxy as Address
+            };
+        };
 
-                // Yield in batches
-                for (let j = 0; j < promises.length; j += opts.batchSize) {
-                    yield Promise.all(promises.slice(j, j + opts.batchSize));
-                }
-            }
-        } catch (e) {
-            if (opts.signal?.aborted) return;
-            throw e;
-        }
+        yield* fetchOrderedSlice(getTotalItems, getElement, { ...options, descending: true });
     }
 }

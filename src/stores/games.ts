@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
-import { OpContracts, type DisputeGame, type DisputeGamesOptions } from '@lib/contracts';
+import { OpContracts, type DisputeGame } from '@lib/contracts';
 import { network } from '@stores/network';
+import type { OrderedSliceOptions } from '@lib/fetch';
 
 // Stores
 export const games = writable<DisputeGame[]>([]);
@@ -27,12 +28,13 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
         const contracts = new OpContracts(selectedNetwork);
         const totalGames = await contracts.getGameCount();
         gameCount.set(totalGames);
-        const options: DisputeGamesOptions = {
+        const options: OrderedSliceOptions = {
             signal: _controller.signal,
             toIndex: to,
             fromIndex: from,
             batchSize: 100,
-            concurrency: 3
+            concurrency: 3,
+            descending: true
         }
         for await (const batch of contracts.getDisputeGames(options)) {
             games.update(current => [...current, ...batch]);
@@ -66,7 +68,7 @@ export const cancelLoadGames = (): void => {
 
 export const loadMoreGames = async (): Promise<void> => {
     const to = _lastLoadedIndex - 1;
-    const from = to - gamesBatchSize;
+    const from = to - gamesBatchSize + 1;
     return _loadGames(from, to);
 }
 
