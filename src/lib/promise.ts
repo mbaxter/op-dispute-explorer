@@ -17,19 +17,13 @@ export async function getNextBatch<T>(promises: Array<Promise<T>>): Promise<[T[]
     // Collect all contiguous resolved promises into a batch
     const batch: T[] = [];
     while (promises.length > 0) {        
-        try {
-            const next = await getIfResolved(promises[0]);   
-            if (next === undefined) {
-                break;
-            }
-            
-            batch.push(next as T);
-            promises.shift();
-        } catch (err) {
-            // TODO: Handle errors here
-            console.error('Error in processPromiseBatch:', err);
-            promises.shift();
+        const next = await getIfResolved(promises[0]);   
+        if (next === undefined) {
+            break;
         }
+        
+        batch.push(next as T);
+        promises.shift();
     }
     
     return [batch, promises];

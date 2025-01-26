@@ -32,12 +32,10 @@ describe('getNextBatch', () => {
         expect(remaining).toEqual([pending, promiseC]);
     });
 
-    // TODO: Handle rejected promises
-    it('drops rejected promises', async () => {
+    it('rejects on error', async () => {
         const rejected = Promise.reject(new Error('test error'));
-        const [resolved, remaining] = await getNextBatch([promiseA, rejected, promiseB, pending, promiseC]);
-        expect(resolved).toEqual(['a', 'b']);
-        expect(remaining).toEqual([pending, promiseC]);
+        await expect(getNextBatch([promiseA, rejected, promiseB, pending, promiseC]))
+            .rejects.toThrow('test error');
         await rejected.catch(() => {/* Expected rejection */}); // Handle the rejection after the test
     });
 

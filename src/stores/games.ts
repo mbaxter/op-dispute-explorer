@@ -43,7 +43,8 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
         _lastLoadedIndex = from;
     } catch (error) {
         if (!_controller.signal.aborted) {
-            console.error(error);
+            // TODO: Better error handling
+            console.error("Failed to load games:", error);
             throw error;
         }
     } finally {
