@@ -2,10 +2,12 @@ import { ethers, type JsonRpcProvider } from "ethers";
 
 export type RpcOptions = {
     batchSize?: number;
+    batchStallTime?: number;
 }
 
 const DEFAULT_OPTIONS: RpcOptions = {
     batchSize: 100,
+    batchStallTime: 10,
 };
 
 const rpcCache = new Map<string, JsonRpcProvider>();

@@ -2,7 +2,7 @@ import { ethers, type JsonRpcProvider } from "ethers";
 import type { Network } from "./network";
 import type { Address } from "./eth";
 import { getRpcProvider } from "./rpc";
-import { fetchOrderedSlice, type OrderedSliceOptions, type GetProvider } from "./fetch";
+import { fetchOrderedSlice, type OrderedSliceOptions } from "./fetch";
 
 // Contract ABIs
 const SystemConfigAbi = [
@@ -58,8 +58,20 @@ export class DisputeGameFactory {
         return Number(count);
     }
 
+    #getContract(provider: JsonRpcProvider = this.provider): ethers.Contract {
+        if (provider && provider !== this.provider) {
+            return new ethers.Contract(this.contract.target as Address, DisputeGameFactoryAbi, provider);
+        }
+        return this.contract;
+    }
+
     async getGameAtIndex(index: number): Promise<DisputeGame> {
-        const [gameType, timestamp, proxy] = await this.contract.gameAtIndex(index);
+        return await this.#getGameAtIndex(index);
+    }
+
+    async #getGameAtIndex(index: number, provider: JsonRpcProvider = this.provider): Promise<DisputeGame> {
+        const contract = this.#getContract(provider);
+        const [gameType, timestamp, proxy] = await contract.gameAtIndex(index);
         return {
             index,
             gameType: Number(gameType),
@@ -73,14 +85,9 @@ export class DisputeGameFactory {
             return await this.getGameCount();
         };
 
-        const getElement = async (idx: number, getProvider: GetProvider): Promise<DisputeGame> => {
-            const provider = getProvider(this.network.l1RpcUrl);
-            const tempFactory = new DisputeGameFactory(
-                this.contract.target as Address,
-                provider,
-                this.network
-            );
-            return await tempFactory.getGameAtIndex(idx);
+        const provider = getRpcProvider(this.network.l1RpcUrl, {batchSize: options.batchSize, batchStallTime: 0})
+        const getElement = async (idx: number): Promise<DisputeGame> => {
+            return await this.#getGameAtIndex(idx, provider);
         };
 
         yield* fetchOrderedSlice(getTotalItems, getElement, { ...options, descending: true });
@@ -101,7 +108,7 @@ export class OptimismPortal {
 }
 
 export class OpContracts {
-    private readonly l1Provider: JsonRpcProvider;
+    private readonly provider: JsonRpcProvider;
     private readonly network: Network;
     private readonly systemConfig: SystemConfig;
     private disputeGameFactoryInstance?: DisputeGameFactory;
@@ -109,12 +116,8 @@ export class OpContracts {
 
     constructor(network: Network) {
         this.network = network;
-        this.l1Provider = getRpcProvider(network.l1RpcUrl);
-        this.systemConfig = new SystemConfig(network.systemConfigAddress, this.l1Provider);
-    }
-
-    #getL1Provider(batchSize: number = 100): JsonRpcProvider {
-        return getRpcProvider(this.network.l1RpcUrl, { batchSize });
+        this.provider = getRpcProvider(network.l1RpcUrl);
+        this.systemConfig = new SystemConfig(network.systemConfigAddress, this.provider);
     }
 
     async getDisputeGameFactory(): Promise<DisputeGameFactory> {
@@ -122,7 +125,7 @@ export class OpContracts {
             const address = await this.systemConfig.getDisputeGameFactory();
             this.disputeGameFactoryInstance = new DisputeGameFactory(
                 address,
-                this.#getL1Provider(100),
+                this.provider,
                 this.network
             );
         }
@@ -132,7 +135,7 @@ export class OpContracts {
     async getOptimismPortal(): Promise<OptimismPortal> {
         if (!this.optimismPortalInstance) {
             const address = await this.systemConfig.getOptimismPortal();
-            this.optimismPortalInstance = new OptimismPortal(address, this.l1Provider);
+            this.optimismPortalInstance = new OptimismPortal(address, this.provider);
         }
         return this.optimismPortalInstance;
     }

@@ -1,6 +1,3 @@
-import { type JsonRpcProvider } from "ethers";
-import { getRpcProvider } from "./rpc";
-
 export type OrderedSliceOptions = {
     fromIndex?: number;
     toIndex?: number;
@@ -20,22 +17,15 @@ const DEFAULT_SLICE_OPTIONS: RequiredSliceOptions = {
     descending: false
 };
 
-export type GetProvider = (url: string) => JsonRpcProvider;
-
 export async function* fetchOrderedSlice<T>(
     getTotalItems: () => Promise<number>,
-    getElement: (index: number, getProvider: GetProvider) => Promise<T>,
+    getElement: (index: number) => Promise<T>,
     options: OrderedSliceOptions = {}
 ): AsyncGenerator<T[]> {
     const totalItems = await getTotalItems();
     if (totalItems === 0) return;
 
     const opts: RequiredSliceOptions = { ...DEFAULT_SLICE_OPTIONS, ...options };
-    
-    // Create a provider getter that uses the batch size
-    const getProvider = (url: string): JsonRpcProvider => {
-        return getRpcProvider(url, { batchSize: opts.batchSize });
-    };
 
     let { toIndex, fromIndex } = opts;
     
@@ -78,7 +68,7 @@ export async function* fetchOrderedSlice<T>(
             
             // Process all indices in this chunk
             for (let idx = i; compareIndices(idx, chunkEnd); idx += increment) {
-                promises.push(getElement(idx, getProvider));
+                promises.push(getElement(idx));
             }
 
             // Yield in batches
