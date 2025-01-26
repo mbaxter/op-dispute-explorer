@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { Clock } from './contracts';
+import { Clock } from './FaultDisputeGame';
 
 describe('Clock', () => {
     let now: number;
