@@ -3,18 +3,13 @@ import type { Network } from "../network";
 import type { Address } from "../eth";
 import { getRpcProvider } from "../rpc";
 import { fetchOrderedSlice, type OrderedSliceOptions } from "../fetch";
+import type { DisputeGameInfo } from "./FaultDisputeGame";
+import { FaultDisputeGame } from "./FaultDisputeGame";
 
 const DisputeGameFactoryAbi = [
     "function gameAtIndex(uint256 _index) external view returns (uint32 gameType_, uint64 timestamp_, address proxy_)",
     "function gameCount() external view returns (uint256 gameCount_)"
 ] as const;
-
-export type DisputeGame = {
-    index: number;
-    gameType: number;
-    timestamp: number;
-    proxy: Address;
-}
 
 export class DisputeGameFactory {
     private readonly contract: ethers.Contract;
@@ -39,28 +34,25 @@ export class DisputeGameFactory {
         return this.contract;
     }
 
-    async getGameAtIndex(index: number): Promise<DisputeGame> {
-        return await this.#getGameAtIndex(index);
-    }
-
-    async #getGameAtIndex(index: number, provider: JsonRpcProvider = this.provider): Promise<DisputeGame> {
+    async #getGameAtIndex(index: number, provider: JsonRpcProvider = this.provider): Promise<FaultDisputeGame> {
         const contract = this.#getContract(provider);
         const [gameType, timestamp, proxy] = await contract.gameAtIndex(index);
-        return {
+        const gameInfo: DisputeGameInfo = {
             index,
             gameType: Number(gameType),
             timestamp: Number(timestamp),
             proxy: proxy as Address
         };
+        return new FaultDisputeGame(gameInfo, provider, this.network);
     }
 
-    async *getDisputeGames(options: OrderedSliceOptions = {}): AsyncGenerator<DisputeGame[]> {
+    async *getDisputeGames(options: OrderedSliceOptions = {}): AsyncGenerator<FaultDisputeGame[]> {
         const getTotalItems = async () => {
             return await this.getGameCount();
         };
 
         const provider = getRpcProvider(this.network.l1RpcUrl, {batchSize: options.batchSize, batchStallTime: 0})
-        const getElement = async (idx: number): Promise<DisputeGame> => {
+        const getElement = async (idx: number): Promise<FaultDisputeGame> => {
             return await this.#getGameAtIndex(idx, provider);
         };
 

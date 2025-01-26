@@ -1,10 +1,12 @@
-import { writable, get } from 'svelte/store';
-import { OpContracts, type DisputeGame } from '@lib/contracts';
+import { writable, get, derived } from 'svelte/store';
+import { OpContracts } from '@lib/contracts';
+import { FaultDisputeGame } from '@lib/contracts/FaultDisputeGame';
 import { network } from '@stores/network';
 import type { OrderedSliceOptions } from '@lib/fetch';
 
 // Stores
-export const games = writable<DisputeGame[]>([]);
+export const games = writable<Map<number, FaultDisputeGame>>(new Map());
+export const sortedGames = derived(games, $games => [...$games.values()]);
 export const loadingCounter = writable<number>(0);
 export const gameCount = writable<number>(0);
 
@@ -18,7 +20,7 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
 
     const selectedNetwork = get(network);
     if (!selectedNetwork) {
-        games.set([]); // Reset games if no network
+        games.set(new Map()); // Reset games if no network
         return;
     }
 
@@ -38,7 +40,13 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
             descending: true
         }
         for await (const batch of dgf.getDisputeGames(options)) {
-            games.update(current => [...current, ...batch]);
+            games.update(current => {
+                const newMap = new Map(current);
+                for (const game of batch) {
+                    newMap.set(game.index, game);
+                }
+                return newMap;
+            });
         }
         _lastLoadedIndex = from;
     } catch (error) {
@@ -54,7 +62,7 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
 
 export const clearGames = (): void => {
     cancelLoadGames();
-    games.set([]);
+    games.set(new Map());
     gameCount.set(0);
 }
 
