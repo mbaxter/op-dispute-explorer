@@ -43,7 +43,9 @@ export class DisputeGameFactory {
             timestamp: Number(timestamp),
             proxy: proxy as Address
         };
-        return new FaultDisputeGame(gameInfo, provider, this.network);
+        const game = new FaultDisputeGame(gameInfo, provider, this.network);
+        await game.getRootClaim();
+        return game;
     }
 
     async *getDisputeGames(options: OrderedSliceOptions = {}): AsyncGenerator<FaultDisputeGame[]> {

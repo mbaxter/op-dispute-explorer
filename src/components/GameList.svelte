@@ -3,6 +3,9 @@
 	import Button from "./Button.svelte";
     import ExternalLink from "./ExternalLink.svelte";
 	import { network } from '@stores/network';
+	import Spinner from './Spinner.svelte';
+    import WarningIcon from './WarningIcon.svelte';
+    import Tooltip from './Tooltip.svelte';
 </script>
 
 <div class="flex justify-end gap-4 items-center mb-4">
@@ -18,6 +21,7 @@
             <th>Index</th>
             <th>Game Type</th>
             <th>Timestamp</th>
+            <th>Root Claim</th>
             <th>Details</th>
         </tr>
     </thead>
@@ -27,6 +31,20 @@
                 <td>{game.index}</td>
                 <td>{game.gameType}</td>
                 <td>{game.createdAt.toLocaleString()}</td>
+                <td>
+                    {#await game.getRootClaim()}
+                        <Spinner />
+                    {:then rootClaim}
+                        <span>{rootClaim}</span>
+                    {:catch error}
+                        <Tooltip>
+                            <WarningIcon />
+                            <svelte:fragment slot="content">
+                                <p>Error loading root claim</p>
+                            </svelte:fragment>
+                        </Tooltip>
+                    {/await}
+                </td>
                 <td class="flex items-center gap-2">
                     <a href={`/game/${game.index}`}>View</a>
                     <ExternalLink url={`${$network!.l1BlockExplorer}/address/${game.address}`} />
