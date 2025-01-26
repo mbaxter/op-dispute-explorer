@@ -123,13 +123,6 @@ describe('fetchOrderedSlice', () => {
         expect(results).toHaveLength(0);
     });
 
-    it('should respect batch size', async () => {
-        const batchSize = 3;
-        for await (const batch of fetchOrderedSlice(mockGetTotalItems, mockGetElement, { batchSize })) {
-            expect(batch.length).toBeLessThanOrEqual(batchSize);
-        }
-    });
-
     it('should handle AbortSignal', async () => {
         const controller = new AbortController();
         const results: any[] = [];

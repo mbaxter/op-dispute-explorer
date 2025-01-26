@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { DisputeGame } from "@lib/contracts";
     import { games, gameCount, loadMoreGames, loadingCounter } from '@stores/games';
 	import Button from "./Button.svelte";
 </script>

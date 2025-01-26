@@ -1,3 +1,5 @@
+import { getNextBatch } from "./promise";
+
 export type OrderedSliceOptions = {
     fromIndex?: number;
     toIndex?: number;
@@ -63,7 +65,7 @@ export async function* fetchOrderedSlice<T>(
         for (let i = start; opts.descending ? i >= end : i <= end; i += step) {
             if (opts.signal?.aborted) break;
             
-            const promises: Array<Promise<T>> = [];
+            let promises: Array<Promise<T>> = [];
             const chunkEnd = getChunkEnd(i);
             
             // Process all indices in this chunk
@@ -72,8 +74,14 @@ export async function* fetchOrderedSlice<T>(
             }
 
             // Yield in batches
-            for (let j = 0; j < promises.length; j += opts.batchSize) {
-                yield Promise.all(promises.slice(j, j + opts.batchSize));
+            while (promises.length > 0) {
+                const [batch, remainingPromises] = await getNextBatch(promises);
+                promises = remainingPromises;
+                
+                if (batch.length > 0) {
+                    console.log(`Yielding batch of ${batch.length} items`);
+                    yield batch;
+                }
             }
         }
     } catch (e) {
