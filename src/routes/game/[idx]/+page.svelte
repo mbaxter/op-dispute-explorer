@@ -1,5 +1,7 @@
 <script>
+	import GameDetails from '@components/GameDetails.svelte';
+
 	let { data } = $props();
 </script>
 
-<h1>Game {data.idx}</h1>
+<GameDetails index={data.idx} />
