@@ -18,7 +18,8 @@ const config = {
 			'@components': 'src/components',
 			'@stores': 'src/stores',
 			'@routes': 'src/routes',
-			'@styles': 'src/styles'
+			'@styles': 'src/styles',
+			'@types': 'src/types'
 		  }
 	},
 
