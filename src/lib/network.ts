@@ -40,7 +40,6 @@ export class Network {
 
 const SEPOLIA = "https://ethereum-sepolia-rpc.publicnode.com"
 const ETHEREUM = "https://ethereum-rpc.publicnode.com"
-const LOCAL="127.0.0.1:8545"
 
 // Export Networks
 export const OP_MAINNET = new Network({
@@ -62,11 +61,3 @@ export const OP_SEPOLIA = new Network({
 });
 
 export const NETWORKS = [OP_MAINNET, OP_SEPOLIA];
-export {LOCAL};
-
-// export const OP_DEVNET = new Network({
-//     l1RpcUrl: SEPOLIA,
-//     l2RpcUrl: "https://sepolia.optimism.io/",
-//     chainId: 11155421,
-//     systemConfigProxy: "0xa6b72407e2dc9EBF84b839B69A24C88929cf20F7"
-// });
