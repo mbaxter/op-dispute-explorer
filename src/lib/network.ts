@@ -1,5 +1,6 @@
 import { isAddress } from 'ethers'
 import type { Address } from './eth';
+import defaultNetworksConfig from '../networks.json';
 
 interface L1Config {
     rpcUrl: string;
@@ -13,6 +14,17 @@ interface NetworkConfig {
     chainId: number;
     systemConfigProxy: Address;
 }
+
+const L1_CONFIGS: Record<string, L1Config> = {
+    sepolia: {
+        rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
+        blockExplorer: "https://sepolia.etherscan.io"
+    },
+    ethereum: {
+        rpcUrl: "https://ethereum-rpc.publicnode.com",
+        blockExplorer: "https://etherscan.io"
+    }
+};
 
 export class Network {
     public readonly name: string;
@@ -47,31 +59,77 @@ export class Network {
     }
 }
 
-const SEPOLIA: L1Config = {
-    rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
-    blockExplorer: "https://sepolia.etherscan.io"
+export function parseNetwork(config: unknown): Network {
+    // Validate required fields
+    if (!config || typeof config !== 'object') {
+        throw new Error('Invalid network configuration');
+    }
+
+    const { name, l2RpcUrl, chainId, systemConfigProxy, l1 } = config as Record<string, unknown>;
+
+    if (!name || typeof name !== 'string') {
+        throw new Error('Missing or invalid "name"');
+    }
+    if (!l2RpcUrl || typeof l2RpcUrl !== 'string') {
+        throw new Error(`Missing or invalid "l2RpcUrl" in network "${name}"`);
+    }
+    if (typeof chainId !== 'number') {
+        throw new Error(`Missing or invalid "chainId" in network "${name}"`);
+    }
+    if (!systemConfigProxy || typeof systemConfigProxy !== 'string') {
+        throw new Error(`Missing or invalid "systemConfigProxy" in network "${name}"`);
+    }
+    if (!isAddress(systemConfigProxy)) {
+        throw new Error(`Invalid system config address in network "${name}": ${systemConfigProxy}`);
+    }
+
+    // Parse L1 configuration
+    let parsedL1: L1Config;
+    if (typeof l1 === 'string') {
+        const normalizedL1 = l1.trim().toLowerCase();
+        if (!(normalizedL1 in L1_CONFIGS)) {
+            throw new Error(`Invalid L1 reference "${l1}" in network "${name}". Valid options are: ${Object.keys(L1_CONFIGS).join(', ')}`);
+        }
+        parsedL1 = L1_CONFIGS[normalizedL1];
+    } else if (l1 && typeof l1 === 'object') {
+        const l1Config = l1 as Record<string, unknown>;
+        if (!l1Config.rpcUrl || typeof l1Config.rpcUrl !== 'string') {
+            throw new Error(`Missing or invalid "l1.rpcUrl" in network "${name}"`);
+        }
+        if (!l1Config.blockExplorer || typeof l1Config.blockExplorer !== 'string') {
+            throw new Error(`Missing or invalid "l1.blockExplorer" in network "${name}"`);
+        }
+        parsedL1 = {
+            rpcUrl: l1Config.rpcUrl,
+            blockExplorer: l1Config.blockExplorer
+        };
+    } else {
+        throw new Error(`Missing or invalid "l1" configuration in network "${name}"`);
+    }
+
+    return new Network({
+        name,
+        l1: parsedL1,
+        l2RpcUrl,
+        chainId,
+        systemConfigProxy
+    });
 }
 
-const ETHEREUM: L1Config = {
-    rpcUrl: "https://ethereum-rpc.publicnode.com",
-    blockExplorer: "https://etherscan.io"
+export function getNetworks(config: unknown = defaultNetworksConfig): Network[] {
+    if (!Array.isArray(config) || config.length === 0) {
+        throw new Error('No networks found in configuration file');
+    }
+
+    return config.map((networkConfig, index) => {
+        try {
+            return parseNetwork(networkConfig);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            throw new Error(`Error parsing network at index ${index}: ${message}`);
+        }
+    });
 }
 
 // Export Networks
-export const OP_MAINNET = new Network({
-    name: "Optimism Mainnet",
-    l1: ETHEREUM,
-    l2RpcUrl: "https://mainnet.optimism.io/",
-    chainId: 10,
-    systemConfigProxy: "0x229047fed2591dbec1eF1118d64F7aF3dB9EB290",
-});
-
-export const OP_SEPOLIA = new Network({
-    name: "Optimism Sepolia",
-    l1: SEPOLIA,
-    l2RpcUrl: "https://sepolia.optimism.io/",
-    chainId: 11155420,
-    systemConfigProxy: "0x034edD2A225f7f429A63E0f1D2084B9E0A93b538",
-});
-
-export const NETWORKS = [OP_MAINNET, OP_SEPOLIA];
+export const NETWORKS = getNetworks();

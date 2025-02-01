@@ -2,21 +2,22 @@
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Creating a project
+## Setup
 
-If you're seeing this, you've probably already done this step. Congrats!
-
+1. Clone the repository
+2. Install dependencies:
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+npm install
 ```
+3. Set up your network configuration:
+```bash
+cp src/networks.example.json src/networks.json
+```
+4. Modify `src/networks.json` with your specific network settings. This file is gitignored and won't be committed to the repository.
 
-## Developing
+## Development
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Start the development server:
 
 ```bash
 npm run dev

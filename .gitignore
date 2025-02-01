@@ -1,6 +1,9 @@
 test-results
 node_modules
 
+# Config
+networks.json
+
 # Output
 .output
 .vercel

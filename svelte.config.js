@@ -13,6 +13,8 @@ const config = {
 		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: adapter(),
+		// Run `npm run dev` to rebuild aliases
+		// See: https://svelte.dev/docs/kit/configuration#alias
 		alias: {
 			'@lib': 'src/lib',
 			'@components': 'src/components',
@@ -20,7 +22,7 @@ const config = {
 			'@routes': 'src/routes',
 			'@styles': 'src/styles',
 			'@types': 'src/types'
-		  }
+		}
 	},
 
 	extensions: ['.svelte', '.svx']
