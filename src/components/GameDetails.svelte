@@ -2,7 +2,7 @@
 	import { games } from '@stores/games';
 	import AsyncData from './AsyncData.svelte';
 	import type { DisputeGame } from '@lib/game';
-
+	import Address from './Address.svelte';
 	export let index: number;
 
 	$: game = $games.get(index);
@@ -29,7 +29,7 @@
 				</tr>
 				<tr>
 					<td>Game Address:</td>
-					<td>{game.address}</td>
+					<td><Address address={game.address} /></td>
 				</tr>
 				<tr>
 					<td>Created At:</td>

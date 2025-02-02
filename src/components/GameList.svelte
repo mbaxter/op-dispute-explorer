@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { games, gameCount, loadMoreGames, loadingCounter, sortedGames } from '@stores/games';
 	import Button from './Button.svelte';
-	import ExternalLink from './ExternalLink.svelte';
-	import { network } from '@stores/network';
-	import Spinner from './Spinner.svelte';
-	import WarningIcon from './WarningIcon.svelte';
-	import Tooltip from './Tooltip.svelte';
 	import AsyncData from './AsyncData.svelte';
 </script>
 
@@ -39,7 +34,6 @@
 				</td>
 				<td class="flex items-center gap-2">
 					<a href={`/game/${game.index}`}>View</a>
-					<ExternalLink url={`${$network!.l1BlockExplorer}/address/${game.address}`} />
 				</td>
 			</tr>
 		{/each}
