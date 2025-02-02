@@ -66,7 +66,11 @@
 								<AsyncData
 									promise={game.getL2BlockNumberChallenger()}
 									dataName="L2 block number challenger"
-								/>
+								>
+									<svelte:fragment let:data>
+										<Address address={data} />
+									</svelte:fragment>
+								</AsyncData>
 							</td>
 						</tr>
 					{/if}
