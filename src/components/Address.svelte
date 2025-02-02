@@ -2,6 +2,12 @@
 	import { network } from '@stores/network';
 	import ExternalLinkIcon from './ExternalLinkIcon.svelte';
 	export let address: string;
+	export let maxLength: number | undefined = undefined;
+
+	$: displayAddress =
+		maxLength && address.length > maxLength
+			? `${address.slice(0, maxLength / 2)}...${address.slice(-maxLength / 2)}`
+			: address;
 </script>
 
 <a
@@ -11,7 +17,7 @@
 	class="address-link"
 	title={address}
 >
-	<span class="address">{address}</span>
+	<span class="address">{displayAddress}</span>
 	<span class="icon">
 		<ExternalLinkIcon />
 	</span>
@@ -32,7 +38,7 @@
 	.address {
 		font-family: monospace;
 		font-size: 1em;
-        overflow: hidden;
+		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}

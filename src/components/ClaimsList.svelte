@@ -57,10 +57,10 @@
 						<td>{claim.index}</td>
 						<td>{claim.position}</td>
 						<td>{claim.parentIndex === 4294967295 ? '' : claim.parentIndex}</td>
-						<td class="address"><Address address={claim.claimant} /></td>
+						<td class="address"><Address address={claim.claimant} maxLength={16} /></td>
 						<td><TruncatedValue value={claim.claim} /></td>
 						<td><Ether wei={claim.bond} /></td>
-						<td class="address"><Address address={claim.counteredBy} /></td>
+						<td class="address"><Address address={claim.counteredBy} maxLength={16}/></td>
 					</tr>
 				{/each}
 			</tbody>
