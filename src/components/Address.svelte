@@ -10,6 +10,7 @@
 			: address;
 </script>
 
+{#if address !== '0x0000000000000000000000000000000000000000'}
 <a
 	href="{$network!.l1BlockExplorer}/address/{address}"
 	target="_blank"
@@ -22,6 +23,7 @@
 		<ExternalLinkIcon />
 	</span>
 </a>
+{/if}
 
 <style>
 	.address-link {
