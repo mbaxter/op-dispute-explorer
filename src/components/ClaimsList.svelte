@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import Ether from './Ether.svelte';
 	import Address from './Address.svelte';
+	import TruncatedValue from './TruncatedValue.svelte';
 	export let game: DisputeGame;
 
 	let claims: ClaimData[] = [];
@@ -57,7 +58,7 @@
 						<td>{claim.position}</td>
 						<td>{claim.parentIndex === 4294967295 ? '' : claim.parentIndex}</td>
 						<td class="address"><Address address={claim.claimant} /></td>
-						<td class="claim">{claim.claim}</td>
+						<td><TruncatedValue value={claim.claim} /></td>
 						<td><Ether wei={claim.bond} /></td>
 						<td class="address"><Address address={claim.counteredBy} /></td>
 					</tr>
