@@ -9,9 +9,9 @@
 		const MIN_ETHER = ETHER / 10000n; // 0.0001 ether
 
 		if (weiValue >= MIN_ETHER) {
-			// Convert to ether and format with up to 4 decimal places
+			// Convert to ether and format with up to 4 decimal places without trailing zeros
 			const ether = Number(weiValue) / Number(ETHER);
-			return `${ether.toFixed(4)} ETH`;
+			return `${ether.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 4 })} ETH`;
 		} else {
 			// Show in wei
 			return `${weiValue.toString()} wei`;
