@@ -56,15 +56,21 @@
 						/>
 					</td>
 				</tr>
-				<tr>
-					<td>L2 Block Number Challenger:</td>
-					<td>
-						<AsyncData
-							promise={game.getL2BlockNumberChallenger()}
-							dataName="L2 block number challenger"
-						/>
-					</td>
-				</tr>
+				{#await game.getL2BlockNumberChallenged()}
+					<!-- Loading state handled by AsyncData component -->
+				{:then challenged}
+					{#if challenged}
+						<tr>
+							<td>L2 Block Number Challenger:</td>
+							<td>
+								<AsyncData
+									promise={game.getL2BlockNumberChallenger()}
+									dataName="L2 block number challenger"
+								/>
+							</td>
+						</tr>
+					{/if}
+				{/await}
 			</tbody>
 		</table>
 	</div>
