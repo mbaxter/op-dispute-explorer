@@ -1,6 +1,7 @@
 import type { Address } from "./eth";
 
 export type ClaimData = {
+    index: number;
     parentIndex: number;    // uint32
     counteredBy: Address;   // address
     claimant: Address;      // address

@@ -87,6 +87,7 @@ export class DisputeGame {
     async #getClaimAtIndex(index: number): Promise<ClaimData> {
         const claim = await this.#contract.claimData(index);
         return {
+            index,
             parentIndex: Number(claim.parentIndex),
             counteredBy: claim.counteredBy as Address,
             claimant: claim.claimant as Address,
@@ -106,7 +107,7 @@ export class DisputeGame {
             return await this.#getClaimAtIndex(idx);
         };
 
-        yield* fetchOrderedSlice(getTotalItems, getElement, { ...options, descending: true });
+        yield* fetchOrderedSlice(getTotalItems, getElement, { ...options });
     }
 
 } 
