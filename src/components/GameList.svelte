@@ -2,10 +2,16 @@
 	import { games, gameCount, loadMoreGames, loadingCounter, sortedGames } from '@stores/games';
 	import Button from './Button.svelte';
 	import AsyncData from './AsyncData.svelte';
+	import Spinner from './Spinner.svelte';
+	import { cancelLoadGames } from '@stores/games';
 </script>
 
 <div class="mb-4 flex items-center justify-end gap-4">
 	<h1>Loaded {$games.size} games out of {$gameCount}</h1>
+	{#if $loadingCounter > 0}
+		<Spinner />
+		<button onclick={cancelLoadGames}>Cancel</button>
+	{/if}
 	<Button
 		small={true}
 		disabled={$games.size >= $gameCount || $loadingCounter > 0}

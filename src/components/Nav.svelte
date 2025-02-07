@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { NETWORKS } from '@lib/network';
 	import { network } from '@stores/network';
-	import { loadingCounter, cancelLoadGames, loadGames, clearGames } from '@stores/games';
-	import Spinner from '@components/Spinner.svelte';
+	import { loadGames, clearGames } from '@stores/games';
 	import NavLinks from '@components/NavLinks.svelte';
 
 	const onNetworkChange = () => {
@@ -18,10 +17,6 @@
 
 	<div class="flex flex-1 items-center justify-center gap-2">
 		<NavLinks />
-		{#if $loadingCounter > 0}
-			<Spinner />
-			<button onclick={cancelLoadGames}>Cancel</button>
-		{/if}
 	</div>
 
 	<div class="ml-auto flex items-center gap-2">
