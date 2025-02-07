@@ -33,7 +33,7 @@
 					<AsyncData promise={game.getRootClaim()} dataName="root claim" />
 				</td>
 				<td class="flex items-center gap-2">
-					<a href={`/game/${game.index}`}>View</a>
+					<a href="/games/{game.index}">View</a>
 				</td>
 			</tr>
 		{/each}

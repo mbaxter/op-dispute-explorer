@@ -3,8 +3,15 @@
     const { page } = getStores();
 
     const links = [
-        { name: 'Home', path: '/' }
+        { name: 'Overview', path: '/' },
+        { name: 'Games', path: '/games' }
     ];
+
+    // Helper function to check if current path matches or starts with link path
+    function isActivePath(currentPath: string, linkPath: string): boolean {
+        return currentPath === linkPath || 
+               (currentPath.startsWith(linkPath) && currentPath[linkPath.length] === '/');
+    }
 </script>
 
 <ul class="flex gap-4">
@@ -12,8 +19,8 @@
         <li>
             <a 
                 href={link.path} 
-                class:font-bold={$page.url.pathname === link.path}
-                class:text-blue-500={$page.url.pathname === link.path}
+                class:font-bold={isActivePath($page.url.pathname, link.path)}
+                class:text-blue-500={isActivePath($page.url.pathname, link.path)}
             >
                 {link.name}
             </a>

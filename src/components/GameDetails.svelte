@@ -15,74 +15,96 @@
 	}
 </script>
 
-{#if game}
-	<div class="game-details">
-		<table>
-			<tbody>
-				<tr>
-					<td>Game Index:</td>
-					<td>{game.index}</td>
-				</tr>
-				<tr>
-					<td>Game Type:</td>
-					<td>{game.gameType}</td>
-				</tr>
-				<tr>
-					<td>Game Address:</td>
-					<td><Address address={game.address} /></td>
-				</tr>
-				<tr>
-					<td>Created At:</td>
-					<td>{game.createdAt.toLocaleString()}</td>
-				</tr>
-				<tr>
-					<td>L1 Head:</td>
-					<td>
-						<AsyncData promise={game.getL1Head()} dataName="L1 head" />
-					</td>
-				</tr>
-				<tr>
-					<td>Status:</td>
-					<td>
-						<AsyncData promise={game.getStatus()} dataName="status" />
-					</td>
-				</tr>
-				<tr>
-					<td>L2 Block Number Challenged:</td>
-					<td>
-						<AsyncData
-							promise={game.getL2BlockNumberChallenged()}
-							dataName="L2 block number challenged"
-						/>
-					</td>
-				</tr>
-				{#await game.getL2BlockNumberChallenged()}
-					<!-- Loading state handled by AsyncData component -->
-				{:then challenged}
-					{#if challenged}
-						<tr>
-							<td>L2 Block Number Challenger:</td>
-							<td>
-								<AsyncData
-									promise={game.getL2BlockNumberChallenger()}
-									dataName="L2 block number challenger"
-								>
-									<svelte:fragment let:data>
-										<Address address={data} />
-									</svelte:fragment>
-								</AsyncData>
-							</td>
-						</tr>
-					{/if}
-				{/await}
-			</tbody>
-		</table>
-	</div>
-{:else}
-	<p>Game not found</p>
-{/if}
+<div class="container">
+	<a href="/games" class="back-link">← Back to Games</a>
+	
+	{#if game}
+		<div class="game-details">
+			<table>
+				<tbody>
+					<tr>
+						<td>Game Index:</td>
+						<td>{game.index}</td>
+					</tr>
+					<tr>
+						<td>Game Type:</td>
+						<td>{game.gameType}</td>
+					</tr>
+					<tr>
+						<td>Game Address:</td>
+						<td><Address address={game.address} /></td>
+					</tr>
+					<tr>
+						<td>Created At:</td>
+						<td>{game.createdAt.toLocaleString()}</td>
+					</tr>
+					<tr>
+						<td>L1 Head:</td>
+						<td>
+							<AsyncData promise={game.getL1Head()} dataName="L1 head" />
+						</td>
+					</tr>
+					<tr>
+						<td>Status:</td>
+						<td>
+							<AsyncData promise={game.getStatus()} dataName="status" />
+						</td>
+					</tr>
+					<tr>
+						<td>L2 Block Number Challenged:</td>
+						<td>
+							<AsyncData
+								promise={game.getL2BlockNumberChallenged()}
+								dataName="L2 block number challenged"
+							/>
+						</td>
+					</tr>
+					{#await game.getL2BlockNumberChallenged()}
+						<!-- Loading state handled by AsyncData component -->
+					{:then challenged}
+						{#if challenged}
+							<tr>
+								<td>L2 Block Number Challenger:</td>
+								<td>
+									<AsyncData
+										promise={game.getL2BlockNumberChallenger()}
+										dataName="L2 block number challenger"
+									>
+										<svelte:fragment let:data>
+											<Address address={data} />
+										</svelte:fragment>
+									</AsyncData>
+								</td>
+							</tr>
+						{/if}
+					{/await}
+				</tbody>
+			</table>
+		</div>
+	{:else}
+		<p>Game not found</p>
+	{/if}
+</div>
 
 <style>
+	.container {
+		position: relative;
+		padding-top: 2rem;
+	}
+
+	.back-link {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 0.5rem;
+		color: var(--link-color, #0066cc);
+		text-decoration: none;
+	}
+
+	.back-link:hover {
+		text-decoration: underline;
+	}
+
 	.game-details {
 		padding: 1rem;
 	}

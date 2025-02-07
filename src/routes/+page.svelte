@@ -1,7 +1,5 @@
-<script>
-
-	import DisputesDashboard from "@components/DisputesDashboard.svelte";
-
+<script lang="ts">
+	import NetworkOverview from '@components/NetworkOverview.svelte';
 </script>
 
-<DisputesDashboard />
+<NetworkOverview />
