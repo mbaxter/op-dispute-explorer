@@ -38,7 +38,6 @@ The script will:
 - Fetch the chain configuration from the Superchain Registry
 - Add or update the chain in your local `src/networks.json`
 - Use the official chain name from the registry
-- Automatically append [Testnet] to Sepolia network names
 - Configure the correct L1 network (ethereum for mainnet, sepolia for testnet)
 
 ## Development
