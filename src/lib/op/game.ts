@@ -1,7 +1,7 @@
-import type { FaultDisputeGame } from '../types/contracts';
+import type { FaultDisputeGame } from '@types/contracts';
 import { Clock, type ClaimData } from './claim';
-import type { Address } from './eth';
-import { fetchOrderedSlice, type OrderedSliceOptions } from './fetch';
+import type { Address } from '@lib/eth';
+import { fetchOrderedSlice, type OrderedSliceOptions } from '@lib/fetch';
 
 export class DisputeGame {
     readonly #contract: FaultDisputeGame;

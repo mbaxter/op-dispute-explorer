@@ -1,4 +1,4 @@
-import type { Address } from "./eth";
+import type { Address } from "@lib/eth";
 
 export type ClaimData = {
     index: number;

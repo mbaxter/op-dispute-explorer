@@ -1,8 +1,7 @@
 import { writable, get, derived } from 'svelte/store';
-import { contracts } from '@stores/contracts';
+import { getOpChain } from './network';
 import type { OrderedSliceOptions } from '@lib/fetch';
-import { fetchOrderedSlice } from '@lib/fetch';
-import { DisputeGame } from '@lib/game';
+import { DisputeGame } from '@lib/op/game';
 
 // Stores
 export const games = writable<Map<number, DisputeGame>>(new Map());
@@ -19,8 +18,8 @@ let _lastLoadedIndex: number = -1;
 const _loadGames = async (from: number, to: number): Promise<void> => {
   cancelLoadGames(); // Cancel any ongoing requests
 
-  const contractsInstance = get(contracts);
-  if (!contractsInstance) {
+  const opChain = get(getOpChain);
+  if (!opChain) {
     games.set(new Map()); // Reset games if no contracts
     return;
   }
@@ -28,8 +27,7 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
   loadingCounter.update(n => n + 1);
 
   try {
-    const dgf = await contractsInstance.getDisputeGameFactory();
-    const totalGames = await dgf.gameCount();
+    const totalGames = await opChain.getGameCount()
     gameCount.set(totalGames);
 
     const options: OrderedSliceOptions = {
@@ -41,20 +39,7 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
       descending: true
     };
 
-    // Use fetchOrderedSlice to get games in batches
-    const getGameAtIndex = async (index: number) => {
-      const [gameType, timestamp, gameAddress] = await dgf.gameAtIndex(BigInt(index));
-      const contract = await contractsInstance.getFaultDisputeGame(gameAddress);
-      const game = new DisputeGame({ index, gameType, timestamp, gameAddress, contract })
-      await game.getRootClaim();
-      return game;
-    };
-
-    for await (const batch of fetchOrderedSlice(
-      () => Promise.resolve(Number(totalGames)),
-      getGameAtIndex,
-      options
-    )) {
+    for await (const batch of opChain.fetchGames(totalGames, options)) {
       games.update(current => {
         const newMap = new Map(current);
         for (const game of batch) {

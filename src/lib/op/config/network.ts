@@ -1,6 +1,6 @@
 import { isAddress } from 'ethers'
-import type { Address } from './eth';
-import defaultNetworksConfig from '../networks.json';
+import type { Address } from '../../eth';
+import defaultNetworksConfig from '../../../networks.json';
 
 interface L1Config {
     rpcUrl: string;

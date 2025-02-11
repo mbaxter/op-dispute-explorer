@@ -4,7 +4,7 @@ import {
   DisputeGameFactory__factory,
   OptimismPortal2__factory,
   SystemConfig__factory,
-} from '../types/contracts'
+} from '../../types/contracts'
 
 export const getDisputeGameFactory = (provider: ethers.Provider, address: string) => {
   return DisputeGameFactory__factory.connect(address, provider)

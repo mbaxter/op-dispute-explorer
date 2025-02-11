@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { games } from '@stores/games';
 	import AsyncData from './AsyncData.svelte';
-	import type { DisputeGame } from '@lib/game';
 	import Address from './Address.svelte';
 	export let index: number;
 

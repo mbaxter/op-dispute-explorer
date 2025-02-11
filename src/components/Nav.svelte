@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { NETWORKS } from '@lib/network';
+	import { NETWORKS } from '@lib/op/config/network';
 	import { network } from '@stores/network';
 	import { loadGames, clearGames } from '@stores/games';
 	import NavLinks from '@components/NavLinks.svelte';

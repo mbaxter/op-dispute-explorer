@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DisputeGame } from '@lib/game';
-	import type { ClaimData } from '@lib/claim';
+	import type { ClaimData } from '@lib/op/claim';
 	import { onMount } from 'svelte';
 	import { isAddress } from 'ethers';
 	import Ether from './Ether.svelte';
