@@ -1,7 +1,7 @@
 import { writable, get, derived } from 'svelte/store';
 import { getOpChain } from './network';
 import type { OrderedSliceOptions } from '@lib/fetch';
-import { DisputeGame } from '@lib/op/game';
+import { DisputeGame } from '@lib/op/contracts/dispute-game';
 
 // Stores
 export const games = writable<Map<number, DisputeGame>>(new Map());
@@ -20,9 +20,12 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
 
   const opChain = get(getOpChain);
   if (!opChain) {
+    console.error("No op chain found");
     games.set(new Map()); // Reset games if no contracts
     return;
   }
+
+  console.log("Loading games");
 
   loadingCounter.update(n => n + 1);
 
@@ -39,7 +42,7 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
       descending: true
     };
 
-    for await (const batch of opChain.fetchGames(totalGames, options)) {
+    for await (const batch of opChain.fetchDisputeGames(Number(totalGames), options)) {
       games.update(current => {
         const newMap = new Map(current);
         for (const game of batch) {
@@ -48,6 +51,8 @@ const _loadGames = async (from: number, to: number): Promise<void> => {
         return newMap;
       });
     }
+
+    console.log("Games loaded");
 
     _lastLoadedIndex = from;
   } catch (error) {
