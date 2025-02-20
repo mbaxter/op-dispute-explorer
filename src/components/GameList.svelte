@@ -4,6 +4,7 @@
 	import AsyncData from './AsyncData.svelte';
 	import Spinner from './Spinner.svelte';
 	import { cancelLoadGames } from '@stores/games';
+	import Address from './Address.svelte';
 </script>
 
 <div class="mb-4 flex items-center justify-end gap-4">
@@ -25,7 +26,7 @@
 			<th>Index</th>
 			<th>Game Type</th>
 			<th>Timestamp</th>
-			<th>Root Claim</th>
+			<th>Address</th>
 			<th>Details</th>
 		</tr>
 	</thead>
@@ -35,9 +36,7 @@
 				<td>{game.index}</td>
 				<td>{game.gameType}</td>
 				<td>{game.createdAt.toLocaleString()}</td>
-				<td>
-					<AsyncData promise={game.getRootClaim()} dataName="root claim" />
-				</td>
+				<td><Address address={game.address} /></td>
 				<td class="flex items-center gap-2">
 					<a href="/games/{game.index}">View</a>
 				</td>

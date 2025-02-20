@@ -1,19 +1,23 @@
 import { ethers } from 'ethers'
 import {
+  AnchorStateRegistry__factory,
   FaultDisputeGame__factory,
   DisputeGameFactory__factory,
+  MIPS__factory,
   OptimismPortal2__factory,
   SystemConfig__factory,
   type FaultDisputeGame as FaultDisputeGameContract,
   type DisputeGameFactory as DisputeGameFactoryContract,
-  type OptimismPortal2 as OptimismPortal2Contract,
+  type MIPS as MipsContract,
+  type OptimismPortal2 as PortalContract,
   type SystemConfig as SystemConfigContract,
+  type AnchorStateRegistry as AnchorStateRegistryContract,
 } from '@types/contracts'
 
 export class ContractsFactory {
   private systemConfigContract: SystemConfigContract
   private disputeGameFactoryContract: DisputeGameFactoryContract | null = null
-  private optimismPortalContract: OptimismPortal2Contract | null = null
+  private optimismPortalContract: PortalContract | null = null
 
   constructor(
     private readonly provider: ethers.Provider,
@@ -33,7 +37,7 @@ export class ContractsFactory {
     return this.disputeGameFactoryContract
   }
 
-  async getOptimismPortalContract(): Promise<OptimismPortal2Contract> {
+  async getPortalContract(): Promise<PortalContract> {
     if (!this.optimismPortalContract) {
       const address = await this.systemConfigContract.optimismPortal()
       this.optimismPortalContract = OptimismPortal2__factory.connect(
@@ -51,11 +55,21 @@ export class ContractsFactory {
   getFaultDisputeGameContract(address: string): FaultDisputeGameContract {
     return FaultDisputeGame__factory.connect(address, this.provider)
   }
+
+  getAnchorStateRegistryContract(address: string): AnchorStateRegistryContract {
+    return AnchorStateRegistry__factory.connect(address, this.provider)
+  }
+
+  getMipsContract(address: string): MipsContract {
+    return MIPS__factory.connect(address, this.provider)
+  }
 }
 
 export type {
   FaultDisputeGameContract,
   DisputeGameFactoryContract,
-  OptimismPortal2Contract,
+  PortalContract,
   SystemConfigContract,
+  AnchorStateRegistryContract,
+  MipsContract,
 }

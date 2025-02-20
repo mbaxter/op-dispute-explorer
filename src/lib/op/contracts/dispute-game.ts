@@ -1,10 +1,19 @@
-import type { FaultDisputeGame } from '@types/contracts';
+
 import { Clock, type ClaimData } from './claim';
 import type { Address } from '@lib/eth';
 import { fetchOrderedSlice, type OrderedSliceOptions } from '@lib/fetch';
+import { 
+    type ContractsFactory, 
+    type AnchorStateRegistryContract,
+    type MipsContract,
+    type FaultDisputeGameContract,
+     } from './internal/_contracts';
 
 export class DisputeGame {
-    readonly #contract: FaultDisputeGame;
+    readonly #contract: FaultDisputeGameContract;
+    readonly #contractsFactory: ContractsFactory;
+    #anchorStateRegistryContract?: AnchorStateRegistryContract;
+    #mipsContract?: MipsContract;
     readonly index: number;
     readonly gameType: number;
     readonly address: Address;
@@ -18,12 +27,14 @@ export class DisputeGame {
     #l2BlockNumberChallenger?: Address;
 
     constructor(params: {
-        contract: FaultDisputeGame;
+        contractsFactory: ContractsFactory,
+        contract: FaultDisputeGameContract;
         index: number;
         gameType: bigint;
         gameAddress: Address;
         timestamp: bigint;
     }) {
+        this.#contractsFactory = params.contractsFactory;
         this.#contract = params.contract;
         this.index = params.index;
         this.gameType = Number(params.gameType);
@@ -31,9 +42,35 @@ export class DisputeGame {
         this.timestamp = Number(params.timestamp);
     }
 
+    async #getAnchorStateRegistry(): Promise<AnchorStateRegistryContract> {
+        if (!this.#anchorStateRegistryContract) {
+            const address = await this.#contract.anchorStateRegistry();
+            this.#anchorStateRegistryContract = this.#contractsFactory.getAnchorStateRegistryContract(address);
+        }
+        return this.#anchorStateRegistryContract;
+    }
+
+    async #getMipsContract(): Promise<MipsContract> {
+        if (!this.#mipsContract) {
+            const address = await this.#contract.vm();
+            this.#mipsContract = this.#contractsFactory.getMipsContract(address);
+        }
+        return this.#mipsContract;
+    }
+
     // Add utility methods here
     get createdAt(): Date {
         return new Date(this.timestamp * 1000);
+    }
+
+    async getAnchorStateRegsitryAddress(): Promise<string> {
+        const contract = await this.#getAnchorStateRegistry();
+        return await contract.getAddress();
+    }
+
+    async getMipsAddress(): Promise<string> {
+        const contract = await this.#getMipsContract();
+        return await contract.getAddress();
     }
 
     async getL1Head(): Promise<string> {
@@ -59,6 +96,10 @@ export class DisputeGame {
             this.#maxClockDuration = await this.#contract.maxClockDuration();
         }
         return this.#maxClockDuration!;
+    }
+
+    async getL2BlockNumber(): Promise<bigint> {
+        return await this.#contract.l2BlockNumber();
     }
 
     async getL2BlockNumberChallenged(): Promise<boolean> {

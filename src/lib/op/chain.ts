@@ -2,24 +2,49 @@ import { ethers } from "ethers";
 import type { Network } from "./config/network";
 import {ContractsFactory} from '@lib/op/contracts/internal/_contracts';
 import { DisputeGame } from "./contracts/dispute-game";
-import { fetchOrderedSlice, type OrderedSliceOptions } from "@lib/fetch";
+import { type OrderedSliceOptions } from "@lib/fetch";
 import { DisputeGameFactory } from "./contracts/dispute-game-factory";
+import type { Address } from "@lib/eth";
+import type { PortalContract } from "./contracts/internal/_contracts";
 
 
 export class OPChain {
-    private _contracts: ContractsFactory;
-    private _disputeGameFactory: DisputeGameFactory | null = null;
+    #contracts: ContractsFactory;
+    #disputeGameFactory: DisputeGameFactory | null = null;
+    #portalContract: PortalContract | null = null;
 
-    constructor(private readonly network: Network) {
+    constructor(network: Network) {
         const provider = new ethers.JsonRpcProvider(network.l1RpcUrl);
-        this._contracts = new ContractsFactory(provider, network.systemConfigAddress);
+        this.#contracts = new ContractsFactory(provider, network.systemConfigAddress);
+    }
+
+    public async getPortalContractAddress(): Promise<Address> {
+        const portal = await this.#getPortalContract();
+        return await portal.getAddress();
+    }
+
+    public async isPaused(): Promise<boolean> {
+        const portal = await this.#getPortalContract();
+        return await portal.paused();
+    }
+
+    public async getRespectedGameType(): Promise<number> {
+        const portal = await this.#getPortalContract();
+        return Number(await portal.respectedGameType());
+    }
+
+    async #getPortalContract(): Promise<PortalContract> {
+        if (!this.#portalContract) {
+            this.#portalContract = await this.#contracts.getPortalContract();
+        }
+        return this.#portalContract;
     }
 
     public async getDisputeGameFactory(): Promise<DisputeGameFactory> {
-        if (!this._disputeGameFactory) {
-            this._disputeGameFactory = new DisputeGameFactory(this._contracts);
+        if (!this.#disputeGameFactory) {
+            this.#disputeGameFactory = new DisputeGameFactory(this.#contracts);
         }
-        return this._disputeGameFactory;
+        return this.#disputeGameFactory;
     }
 
     async getGameCount(): Promise<bigint> {

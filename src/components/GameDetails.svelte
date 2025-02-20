@@ -30,23 +30,59 @@
 						<td>{game.gameType}</td>
 					</tr>
 					<tr>
+						<td>Game Status:</td>
+						<td><AsyncData promise={game.getStatus()} dataName="game status" /></td>
+					</tr>
+					<tr>
 						<td>Game Address:</td>
 						<td><Address address={game.address} /></td>
 					</tr>
+					<tr>
+                        <td>Anchor State Registry:</td>
+                        <td>
+                            <AsyncData 
+                                promise={game!.getAnchorStateRegsitryAddress()}
+                                dataName="anchor state registry address"
+                            >
+                                <svelte:fragment let:data>
+                                    <Address address={data} />
+                                </svelte:fragment>
+                            </AsyncData>
+                        </td>
+                    </tr>
+					<tr>
+                        <td>MIPS VM:</td>
+                        <td>
+                            <AsyncData 
+                                promise={game!.getMipsAddress()}
+                                dataName="mips address"
+                            >
+                                <svelte:fragment let:data>
+                                    <Address address={data} />
+                                </svelte:fragment>
+                            </AsyncData>
+                        </td>
+                    </tr>
 					<tr>
 						<td>Created At:</td>
 						<td>{game.createdAt.toLocaleString()}</td>
 					</tr>
 					<tr>
-						<td>L1 Head:</td>
+						<td>Root Claim:</td>
 						<td>
-							<AsyncData promise={game.getL1Head()} dataName="L1 head" />
+							<AsyncData promise={game.getRootClaim()} dataName="root claim" />
 						</td>
 					</tr>
 					<tr>
-						<td>Status:</td>
+						<td>L2 Block Number:</td>
 						<td>
-							<AsyncData promise={game.getStatus()} dataName="status" />
+							<AsyncData promise={game.getL2BlockNumber()} dataName="L2 block number" />
+						</td>
+					</tr>
+					<tr>
+						<td>L1 Head:</td>
+						<td>
+							<AsyncData promise={game.getL1Head()} dataName="L1 head" />
 						</td>
 					</tr>
 					<tr>
