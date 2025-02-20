@@ -2,7 +2,6 @@
 	import type { DisputeGame } from '@lib/game';
 	import type { ClaimData } from '@lib/op/contracts/claim';
 	import { onMount } from 'svelte';
-	import { isAddress } from 'ethers';
 	import Ether from './Ether.svelte';
 	import Address from './Address.svelte';
 	import TruncatedValue from './TruncatedValue.svelte';
@@ -97,15 +96,6 @@
 	.address {
 		font-family: monospace;
 		font-size: 0.9em;
-	}
-
-	.claim {
-		font-family: monospace;
-		font-size: 0.9em;
-		max-width: 200px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
 	}
 
 	.loading,
