@@ -1,5 +1,5 @@
 import { isAddress } from 'ethers'
-import type { Address } from '../../eth';
+import type { Address } from '@lib/bytes';
 import defaultNetworksConfig from '../../../networks.json';
 
 interface L1Config {

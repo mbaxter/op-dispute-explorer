@@ -1,5 +1,5 @@
 import { fetchOrderedSlice, type OrderedSliceOptions } from "@lib/fetch";
-import type { Address } from '@lib/eth'
+import type { Address } from '@lib/bytes'
 import type { ContractsFactory, FaultDisputeGameContract } from "./internal/_contracts";
 import { DisputeGame } from "./dispute-game";
 

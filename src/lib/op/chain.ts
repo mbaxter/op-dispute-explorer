@@ -4,7 +4,7 @@ import {ContractsFactory} from '@lib/op/contracts/internal/_contracts';
 import { DisputeGame } from "./contracts/dispute-game";
 import { type OrderedSliceOptions } from "@lib/fetch";
 import { DisputeGameFactory } from "./contracts/dispute-game-factory";
-import type { Address } from "@lib/eth";
+import type { Address } from "@lib/bytes";
 import type { PortalContract } from "./contracts/internal/_contracts";
 
 

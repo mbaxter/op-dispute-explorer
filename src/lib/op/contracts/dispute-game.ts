@@ -1,6 +1,6 @@
 
 import { Clock, type ClaimData } from './claim';
-import type { Address } from '@lib/eth';
+import type { Address } from '@lib/bytes';
 import { fetchOrderedSlice, type OrderedSliceOptions } from '@lib/fetch';
 import { 
     type ContractsFactory, 
