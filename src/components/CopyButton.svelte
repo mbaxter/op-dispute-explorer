@@ -16,11 +16,10 @@
 </script>
 
 <button type="button" class="copy-button" on:click={copyToClipboard}>
-	<Tooltip>
+	<Tooltip message={copyTooltipText}>
 		<div class="copy-icon">
 			<CopyIcon />
 		</div>
-		<svelte:fragment slot="content">{copyTooltipText}</svelte:fragment>
 	</Tooltip>
 </button>
 
