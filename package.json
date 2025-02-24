@@ -16,7 +16,7 @@
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
 		"typechain": "typechain --target ethers-v6 --out-dir src/types/contracts \"src/abi/*.json\"",
-		"add-chains": "node --loader ts-node/esm scripts/add-chains.ts"
+		"add-chains": "node --import ./scripts/ts-register.js scripts/add-chains.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.3",
