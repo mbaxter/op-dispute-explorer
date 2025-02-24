@@ -161,7 +161,7 @@
 			</table>
 		</div>
 	{:else}
-		<p>Game not found</p>
+		<p class="text-center text-lg text-gray-400 my-8 italic">Game not found</p>
 	{/if}
 </div>
 
