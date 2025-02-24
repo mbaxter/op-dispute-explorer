@@ -2,6 +2,7 @@ import { fetchOrderedSlice, type OrderedSliceOptions } from "@lib/fetch";
 import type { Address } from '@lib/bytes'
 import type { ContractsFactory, FaultDisputeGameContract } from "./internal/_contracts";
 import { DisputeGame } from "./dispute-game";
+import type { Providers } from "@lib/op/_providers";
 
 export type GameImplementationEvent = {
   address: Address,
@@ -12,7 +13,7 @@ export type GameImplementationEvent = {
 export class DisputeGameFactory {
     #gameImplementations: Map<number, DisputeGame> | null = null;
 
-    constructor(private readonly contracts: ContractsFactory) {}
+    constructor(private readonly providers: Providers, private readonly contracts: ContractsFactory) {}
 
     async getGameCount(): Promise<bigint> {
         const dgf = await this._getDGFContract();
@@ -34,6 +35,7 @@ export class DisputeGameFactory {
                 const gameAddress = await dgf.gameImpls(BigInt(gameType));
                 const contract = await this._getDisputeGame(gameAddress);
                 const disputeGame = new DisputeGame({ 
+                    providers: this.providers,
                     contractsFactory: this.contracts,
                     index: gameType, 
                     gameType: await contract.gameType(), 
@@ -79,6 +81,7 @@ export class DisputeGameFactory {
         const [gameType, timestamp, gameAddress] = await dgf.gameAtIndex(BigInt(index));
         const contract = await this._getDisputeGame(gameAddress);
         const game = new DisputeGame({ 
+            providers: this.providers,
             contractsFactory: this.contracts, 
             index, 
             gameType, 

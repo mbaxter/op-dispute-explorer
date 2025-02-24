@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import * as bytes from "@lib/bytes";
 import * as blocks from "@lib/blocks";
+import { BlockNotFoundError } from "@lib/blocks";
 
 const L2toL1MessagePasserAddress = "0x4200000000000000000000000000000000000016";
 
@@ -8,14 +9,14 @@ const L2toL1MessagePasserAddress = "0x4200000000000000000000000000000000000016";
 const outputRootV0 = bytes.ZERO_BYTES32
 
 export type OutputRootInfo = {
-    hash: string;
+    outputRoot: string;
     version: string;
     stateRoot: string;
     storageRoot: string;
     blockHash: string;
 }
 
-async function calculateOutputRoot(provider: ethers.JsonRpcProvider, l2BlockNumber: bigint): Promise<OutputRootInfo> {
+export async function calculateOutputRootInfo(provider: ethers.JsonRpcProvider, l2BlockNumber: bigint): Promise<OutputRootInfo> {
     try {
         const version = outputRootV0;
         const blockInfo = await blocks.getBlockInfo(provider, l2BlockNumber);
@@ -38,20 +39,23 @@ async function calculateOutputRoot(provider: ethers.JsonRpcProvider, l2BlockNumb
         const hash =  bytes.hash(serialized);
     
         return {
-            hash,
+            outputRoot: hash,
             version,
             stateRoot: blockInfo.stateRoot,
             storageRoot,
             blockHash: blockInfo.hash,
         }
     } catch (error) {
-        throw new OutputRootError(error);
+        if (error instanceof BlockNotFoundError) {
+            throw new OutputRootError(error.message, { cause: error });
+        }
+        throw error;
     }
 }
 
 export class OutputRootError extends Error {
-    constructor(error: unknown) {
-        super(`Failed to calculate output root: ${error}`);
+    constructor(msg: string, options?: ErrorOptions) {
+        super(msg, options);
         this.name = 'OutputRootError';
     }
 }

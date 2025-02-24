@@ -14,10 +14,7 @@
 		<span>{data}</span>
 	</slot>
 {:catch error}
-	<Tooltip>
+	<Tooltip message="Error loading {dataName}">
 		<WarningIcon />
-		<svelte:fragment slot="content">
-			<p>Error loading {dataName}</p>
-		</svelte:fragment>
 	</Tooltip>
 {/await}

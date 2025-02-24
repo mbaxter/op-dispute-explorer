@@ -2,6 +2,10 @@
 	import { games } from '@stores/games';
 	import AsyncData from './AsyncData.svelte';
 	import Address from './Address.svelte';
+	import { OutputRootError } from '@lib/op/output-root';
+	import ValidationIcon from './ValidationIcon.svelte';
+	import Button from './Button.svelte';
+	import { BlockNotFoundError } from '@lib/blocks';
 	export let index: number;
 
 	$: game = $games.get(index);
@@ -12,12 +16,51 @@
 		game.getL2BlockNumberChallenged();
 		game.getL2BlockNumberChallenger();
 	}
+
+	let isValidating = false;
+	let isValid: boolean | null = null;
+	let validationError: string | null = null;
+
+	async function validateRootClaim() {
+		if (!game) return;
+		
+		isValidating = true;
+		isValid = null;
+		
+		try {
+			const outputRootInfo = await game.calculateOutputRootInfo();
+			const rootClaim = await game.getRootClaim();
+			console.log('Calculated output root info:', outputRootInfo);
+			isValid = outputRootInfo.outputRoot === rootClaim
+			if (!isValid) {
+				validationError = `Root claim does not match calculated output root: ${outputRootInfo.outputRoot}`;
+			}
+		} catch (error) {
+			if (error instanceof OutputRootError) {
+				isValid = false;
+				validationError = error.message;
+			} else {
+				console.error('Failed to calculate output root:', error);	
+			}
+		} finally {
+			isValidating = false;
+		}
+	}
 </script>
 
 <div class="container">
 	<a href="/games" class="back-link">← Back to Games</a>
 	
 	{#if game}
+		<div class="validate-button-container">
+			<Button 
+				onclick={validateRootClaim} 
+				disabled={isValidating}
+			>
+				{isValidating ? 'Validating...' : 'Validate'}
+			</Button>
+		</div>
+
 		<div class="game-details">
 			<table>
 				<tbody>
@@ -69,8 +112,9 @@
 					</tr>
 					<tr>
 						<td>Root Claim:</td>
-						<td>
+						<td class="root-claim">
 							<AsyncData promise={game.getRootClaim()} dataName="root claim" />
+							<ValidationIcon {isValid} {validationError} />
 						</td>
 					</tr>
 					<tr>
@@ -157,5 +201,17 @@
 	td:first-child {
 		font-weight: bold;
 		width: 200px;
+	}
+
+	.validate-button-container {
+		position: absolute;
+		top: 0;
+		right: 0;
+	}
+
+	.root-claim {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 </style>

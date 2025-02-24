@@ -9,9 +9,8 @@
 </script>
 
 <div class="truncated-container">
-	<Tooltip>
+	<Tooltip message={value}>
 		<span>{displayValue}</span>
-		<svelte:fragment slot="content">{value}</svelte:fragment>
 	</Tooltip>
 	<CopyButton {value} />
 </div>

@@ -5,6 +5,7 @@
 	import Spinner from './Spinner.svelte';
 	import { cancelLoadGames } from '@stores/games';
 	import Address from './Address.svelte';
+	import TruncatedValue from './TruncatedValue.svelte';
 </script>
 
 <div class="mb-4 flex items-center justify-end gap-4">
@@ -27,6 +28,7 @@
 			<th>Game Type</th>
 			<th>Timestamp</th>
 			<th>Address</th>
+			<th>Root Claim</th>
 			<th>Details</th>
 		</tr>
 	</thead>
@@ -37,6 +39,12 @@
 				<td>{game.gameType}</td>
 				<td>{game.createdAt.toLocaleString()}</td>
 				<td><Address address={game.address} /></td>
+				<td>
+					<AsyncData promise={game.getRootClaim()} dataName="root claim">
+						<svelte:fragment let:data>
+							<TruncatedValue value={data} />
+						</svelte:fragment>
+					</AsyncData></td>
 				<td class="flex items-center gap-2">
 					<a href="/games/{game.index}">View</a>
 				</td>

@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import type { Network } from "./config/network";
 import {ContractsFactory} from '@lib/op/contracts/internal/_contracts';
 import { DisputeGame } from "./contracts/dispute-game";
@@ -6,16 +5,26 @@ import { type OrderedSliceOptions } from "@lib/fetch";
 import { DisputeGameFactory } from "./contracts/dispute-game-factory";
 import type { Address } from "@lib/bytes";
 import type { PortalContract } from "./contracts/internal/_contracts";
+import { Providers } from "./_providers";
 
 
 export class OPChain {
+    #providers: Providers;
     #contracts: ContractsFactory;
     #disputeGameFactory: DisputeGameFactory | null = null;
     #portalContract: PortalContract | null = null;
 
     constructor(network: Network) {
-        const provider = new ethers.JsonRpcProvider(network.l1RpcUrl);
-        this.#contracts = new ContractsFactory(provider, network.systemConfigAddress);
+        this.#providers = new Providers(network);
+        this.#contracts = new ContractsFactory(this.#providers, network.systemConfigAddress);
+    }
+
+    public async initialize(): Promise<void> {
+        try {
+            await this.#providers.initialize();
+        } catch (error) {
+            console.warn("Failed to initialize providers", error);
+        }
     }
 
     public async getPortalContractAddress(): Promise<Address> {
@@ -42,7 +51,7 @@ export class OPChain {
 
     public async getDisputeGameFactory(): Promise<DisputeGameFactory> {
         if (!this.#disputeGameFactory) {
-            this.#disputeGameFactory = new DisputeGameFactory(this.#contracts);
+            this.#disputeGameFactory = new DisputeGameFactory(this.#providers, this.#contracts);
         }
         return this.#disputeGameFactory;
     }

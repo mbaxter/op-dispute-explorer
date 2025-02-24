@@ -8,8 +8,11 @@ import {
     type MipsContract,
     type FaultDisputeGameContract,
      } from './internal/_contracts';
+import type { Providers } from '@lib/op/_providers';
+import { calculateOutputRootInfo, type OutputRootInfo } from '@lib/op/output-root';
 
 export class DisputeGame {
+    readonly #providers: Providers;
     readonly #contract: FaultDisputeGameContract;
     readonly #contractsFactory: ContractsFactory;
     #anchorStateRegistryContract?: AnchorStateRegistryContract;
@@ -27,6 +30,7 @@ export class DisputeGame {
     #l2BlockNumberChallenger?: Address;
 
     constructor(params: {
+        providers: Providers,
         contractsFactory: ContractsFactory,
         contract: FaultDisputeGameContract;
         index: number;
@@ -34,6 +38,7 @@ export class DisputeGame {
         gameAddress: Address;
         timestamp: bigint;
     }) {
+        this.#providers = params.providers;
         this.#contractsFactory = params.contractsFactory;
         this.#contract = params.contract;
         this.index = params.index;
@@ -61,6 +66,12 @@ export class DisputeGame {
     // Add utility methods here
     get createdAt(): Date {
         return new Date(this.timestamp * 1000);
+    }
+
+    async calculateOutputRootInfo(): Promise<OutputRootInfo> {
+        const l2BlockNumber = await this.getL2BlockNumber();
+        const info = await calculateOutputRootInfo(this.#providers.l2, l2BlockNumber);
+        return info;
     }
 
     async getAnchorStateRegsitryAddress(): Promise<string> {

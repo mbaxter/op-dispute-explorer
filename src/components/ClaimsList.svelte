@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { DisputeGame } from '@lib/game';
+	import type { DisputeGame } from '@lib/op/contracts/dispute-game';
 	import type { ClaimData } from '@lib/op/contracts/claim';
 	import { onMount } from 'svelte';
 	import Ether from './Ether.svelte';

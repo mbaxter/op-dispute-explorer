@@ -1,4 +1,3 @@
-import { ethers } from 'ethers'
 import {
   AnchorStateRegistry__factory,
   FaultDisputeGame__factory,
@@ -13,6 +12,7 @@ import {
   type SystemConfig as SystemConfigContract,
   type AnchorStateRegistry as AnchorStateRegistryContract,
 } from '@types/contracts'
+import type { Providers } from '@lib/op/_providers'
 
 export class ContractsFactory {
   private systemConfigContract: SystemConfigContract
@@ -20,10 +20,10 @@ export class ContractsFactory {
   private optimismPortalContract: PortalContract | null = null
 
   constructor(
-    private readonly provider: ethers.Provider,
+    private readonly providers: Providers,
     systemConfigAddress: string
   ) {
-    this.systemConfigContract = SystemConfig__factory.connect(systemConfigAddress, provider)
+    this.systemConfigContract = SystemConfig__factory.connect(systemConfigAddress, this.providers.l1)
   }
 
   async getDisputeGameFactoryContract(): Promise<DisputeGameFactoryContract> {
@@ -31,7 +31,7 @@ export class ContractsFactory {
       const address = await this.systemConfigContract.disputeGameFactory()
       this.disputeGameFactoryContract = DisputeGameFactory__factory.connect(
         address,
-        this.provider
+        this.providers.l1
       )
     }
     return this.disputeGameFactoryContract
@@ -42,7 +42,7 @@ export class ContractsFactory {
       const address = await this.systemConfigContract.optimismPortal()
       this.optimismPortalContract = OptimismPortal2__factory.connect(
         address,
-        this.provider
+        this.providers.l1
       )
     }
     return this.optimismPortalContract
@@ -53,15 +53,15 @@ export class ContractsFactory {
   }
 
   getFaultDisputeGameContract(address: string): FaultDisputeGameContract {
-    return FaultDisputeGame__factory.connect(address, this.provider)
+    return FaultDisputeGame__factory.connect(address, this.providers.l1)
   }
 
   getAnchorStateRegistryContract(address: string): AnchorStateRegistryContract {
-    return AnchorStateRegistry__factory.connect(address, this.provider)
+    return AnchorStateRegistry__factory.connect(address, this.providers.l1)
   }
 
   getMipsContract(address: string): MipsContract {
-    return MIPS__factory.connect(address, this.provider)
+    return MIPS__factory.connect(address, this.providers.l1)
   }
 }
 

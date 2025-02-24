@@ -51,11 +51,7 @@ export async function getBlockInfo(provider: ethers.JsonRpcProvider, l2BlockNumb
 
 export class BlockNotFoundError extends Error {
     constructor(blockNumber: bigint) {
-        super(`Block ${blockNumber.toString()} not found or missing required fields`);
+        super(`Block #${blockNumber.toString()} not found`);
         this.name = 'BlockNotFoundError';
     }
 }
-
-
-
-

@@ -1,5 +1,6 @@
 <script lang="ts">
     let visible = false;
+    export let message: string | null = null;
 </script>
 
 <div class="tooltip-container"
@@ -7,9 +8,9 @@
     on:mouseenter={() => visible = true}
     on:mouseleave={() => visible = false}>
     <slot />
-    {#if visible}
+    {#if visible && message}
         <div class="tooltip">
-            <slot name="content" />
+            <p>{message}</p>
         </div>
     {/if}
 </div>
