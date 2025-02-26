@@ -1,6 +1,8 @@
-# sv
+# Optimism Dispute Explorer
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A client-side application for exploring dispute games on the Optimism Superchain. 
+
+Built with [`sv`](https://github.com/sveltejs/cli).
 
 ## Setup
 
@@ -25,20 +27,14 @@ npm run add-chains
 ```
 This will show all available chains in both mainnet and sepolia environments.
 
-2. Add one or more chains:
+2. Add (or update) one or more chains:
 ```bash
-# Add a single chain
+# Adds/udpates a single chain
 npm run add-chains mainnet/base
 
-# Add multiple chains
+# Adds/updates multiple chains
 npm run add-chains mainnet/base,sepolia/base
 ```
-
-The script will:
-- Fetch the chain configuration from the Superchain Registry
-- Add or update the chain in your local `src/networks.json`
-- Use the official chain name from the registry
-- Configure the correct L1 network (ethereum for mainnet, sepolia for testnet)
 
 ## Development
 

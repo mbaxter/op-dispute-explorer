@@ -38,10 +38,6 @@ function getL1Network(env: string): string {
     return env === 'mainnet' ? 'ethereum' : 'sepolia'
 }
 
-function formatChainName(chain: string): string {
-    return chain.charAt(0).toUpperCase() + chain.slice(1) + (chain === 'op' ? 'timism' : '')
-}
-
 async function addChain(env: string, chain: string, networks: NetworksJson) {
     const config = await fetchConfig(env, chain)
     const chainConfig: ChainConfig = {
