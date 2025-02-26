@@ -1,13 +1,20 @@
 <script lang="ts">
-    let visible = false;
-    export let message: string | null = null;
+    import type { Snippet } from 'svelte';
+
+    let visible = $state(false);
+    interface Props {
+        message?: string | null;
+        children?: Snippet;
+    }
+
+    let { message = null, children }: Props = $props();
 </script>
 
 <div class="tooltip-container"
     role="tooltip"
-    on:mouseenter={() => visible = true}
-    on:mouseleave={() => visible = false}>
-    <slot />
+    onmouseenter={() => visible = true}
+    onmouseleave={() => visible = false}>
+    {@render children?.()}
     {#if visible && message}
         <div class="tooltip">
             <p>{message}</p>

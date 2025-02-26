@@ -42,9 +42,9 @@
                                     .then(factory => factory.getAddress())}
                                 dataName="dispute game factory"
                             >
-                                <svelte:fragment let:data>
+                                {#snippet children({ data })}
                                     <Address address={data} />
-                                </svelte:fragment>
+                                {/snippet}
                             </AsyncData>
                         </td>
                     </tr>
@@ -55,9 +55,9 @@
                                 promise={$opChain!.getPortalContractAddress()}
                                 dataName="portal contract address"
                             >
-                                <svelte:fragment let:data>
+                                {#snippet children({ data })}
                                     <Address address={data} />
-                                </svelte:fragment>
+                                 {/snippet}
                             </AsyncData>
                         </td>
                     </tr>

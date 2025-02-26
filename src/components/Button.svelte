@@ -1,8 +1,21 @@
 <script lang="ts">
-    export let disabled = false;
-    export let variant: 'primary' | 'secondary' = 'primary';
-    export let onclick: () => void;
-    export let small = false;
+    import type { Snippet } from 'svelte';
+    
+    interface Props {
+        disabled?: boolean;
+        variant?: 'primary' | 'secondary';
+        onclick: () => void;
+        small?: boolean;
+        children?: Snippet;
+    }
+
+    let {
+        disabled = false,
+        variant = 'primary',
+        onclick,
+        small = false,
+        children
+    }: Props = $props();
 </script>
 
 <button
@@ -12,5 +25,5 @@
     {disabled}
     onclick={onclick}
 >
-    <slot />
+    {@render children?.()}
 </button> 

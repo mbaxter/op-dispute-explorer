@@ -2,10 +2,14 @@
 	import CopyButton from './CopyButton.svelte';
 	import Tooltip from './Tooltip.svelte';
 
-	export let value: string;
-	export let maxLength = 20;
+	interface Props {
+		value: string;
+		maxLength?: number;
+	}
+
+	let { value, maxLength = 20 }: Props = $props();
 	
-	$: displayValue = value.length > maxLength ? value.slice(0, maxLength) + '...' : value;
+	let displayValue = $derived(value.length > maxLength ? value.slice(0, maxLength) + '...' : value);
 </script>
 
 <div class="truncated-container">

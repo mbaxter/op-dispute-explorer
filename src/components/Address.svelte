@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { network } from '@stores/network';
 	import ExternalLinkIcon from './ExternalLinkIcon.svelte';
-	export let address: string;
-	export let maxLength: number | undefined = undefined;
+	interface Props {
+		address: string;
+		maxLength?: number | undefined;
+	}
 
-	$: displayAddress =
-		maxLength && address.length > maxLength
+	let { address, maxLength = undefined }: Props = $props();
+
+	let displayAddress =
+		$derived(maxLength && address.length > maxLength
 			? `${address.slice(0, maxLength / 2)}...${address.slice(-maxLength / 2)}`
-			: address;
+			: address);
 </script>
 
 {#if address !== '0x0000000000000000000000000000000000000000'}

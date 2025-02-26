@@ -1,7 +1,11 @@
 <script lang="ts">
     import Tooltip from './Tooltip.svelte';
-    export let isValid: boolean | null = null;
-    export let validationError: string | null = null;
+    interface Props {
+        isValid?: boolean | null;
+        validationError?: string | null;
+    }
+
+    let { isValid = null, validationError = null }: Props = $props();
 </script>
 
 {#if isValid !== null}

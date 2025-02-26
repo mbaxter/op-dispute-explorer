@@ -41,9 +41,9 @@
 				<td><Address address={game.address} /></td>
 				<td>
 					<AsyncData promise={game.getRootClaim()} dataName="root claim">
-						<svelte:fragment let:data>
+						{#snippet children({ data })}				
 							<TruncatedValue value={data} />
-						</svelte:fragment>
+						{/snippet}
 					</AsyncData></td>
 				<td class="flex items-center gap-2">
 					<a href="/games/{game.index}">View</a>

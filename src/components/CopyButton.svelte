@@ -2,9 +2,13 @@
 	import CopyIcon from './CopyIcon.svelte';
 	import Tooltip from './Tooltip.svelte';
 
-	export let value: string;
+	interface Props {
+		value: string;
+	}
+
+	let { value }: Props = $props();
 	
-	let copyTooltipText = 'copy';
+	let copyTooltipText = $state('copy');
 
 	async function copyToClipboard() {
 		await navigator.clipboard.writeText(value);
@@ -15,7 +19,7 @@
 	}
 </script>
 
-<button type="button" class="copy-button" on:click={copyToClipboard}>
+<button type="button" class="copy-button" onclick={copyToClipboard}>
 	<Tooltip message={copyTooltipText}>
 		<div class="copy-icon">
 			<CopyIcon />

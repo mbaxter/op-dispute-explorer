@@ -1,8 +1,10 @@
 <script lang="ts">
-	export let wei: bigint;
+	interface Props {
+		wei: bigint;
+	}
 
-	// Format the value in either wei or ether depending on size
-	$: formattedValue = formatEther(wei);
+	let { wei }: Props = $props();
+
 
 	function formatEther(weiValue: bigint): string {
 		const ETHER = 10n ** 18n; // 1 ether = 10^18 wei
@@ -17,6 +19,8 @@
 			return `${weiValue.toString()} wei`;
 		}
 	}
+	// Format the value in either wei or ether depending on size
+	let formattedValue = $derived(formatEther(wei));
 </script>
 
 <span>{formattedValue}</span>

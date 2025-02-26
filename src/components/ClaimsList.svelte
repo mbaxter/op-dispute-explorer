@@ -5,11 +5,15 @@
 	import Ether from './Ether.svelte';
 	import Address from './Address.svelte';
 	import TruncatedValue from './TruncatedValue.svelte';
-	export let game: DisputeGame;
+	interface Props {
+		game: DisputeGame;
+	}
 
-	let claims: ClaimData[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let { game }: Props = $props();
+
+	let claims: ClaimData[] = $state([]);
+	let loading = $state(true);
+	let error: string | null = $state(null);
 
 	async function loadClaims() {
 		try {

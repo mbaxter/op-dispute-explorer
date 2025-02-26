@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { games } from '@stores/games';
 	import AsyncData from './AsyncData.svelte';
 	import Address from './Address.svelte';
@@ -6,20 +8,26 @@
 	import ValidationIcon from './ValidationIcon.svelte';
 	import Button from './Button.svelte';
 	import { BlockNotFoundError } from '@lib/blocks';
-	export let index: number;
-
-	$: game = $games.get(index);
-	$: if (game) {
-		// Pre-fetch these async values
-		game.getL1Head();
-		game.getStatus();
-		game.getL2BlockNumberChallenged();
-		game.getL2BlockNumberChallenger();
+	interface Props {
+		index: number;
 	}
 
-	let isValidating = false;
-	let isValid: boolean | null = null;
-	let validationError: string | null = null;
+	let { index }: Props = $props();
+
+	let game = $derived($games.get(index));
+	run(() => {
+		if (game) {
+			// Pre-fetch these async values
+			game.getL1Head();
+			game.getStatus();
+			game.getL2BlockNumberChallenged();
+			game.getL2BlockNumberChallenger();
+		}
+	});
+
+	let isValidating = $state(false);
+	let isValid: boolean | null = $state(null);
+	let validationError: string | null = $state(null);
 
 	async function validateRootClaim() {
 		if (!game) return;
@@ -87,9 +95,9 @@
                                 promise={game!.getAnchorStateRegsitryAddress()}
                                 dataName="anchor state registry address"
                             >
-                                <svelte:fragment let:data>
-                                    <Address address={data} />
-                                </svelte:fragment>
+                                {#snippet children({ data })}
+									<Address address={data} />
+	                            {/snippet}
                             </AsyncData>
                         </td>
                     </tr>
@@ -100,9 +108,9 @@
                                 promise={game!.getMipsAddress()}
                                 dataName="mips address"
                             >
-                                <svelte:fragment let:data>
-                                    <Address address={data} />
-                                </svelte:fragment>
+                                {#snippet children({ data })}
+									<Address address={data} />
+	                            {/snippet}
                             </AsyncData>
                         </td>
                     </tr>
@@ -149,9 +157,9 @@
 										promise={game.getL2BlockNumberChallenger()}
 										dataName="L2 block number challenger"
 									>
-										<svelte:fragment let:data>
+										{#snippet children({ data })}
 											<Address address={data} />
-										</svelte:fragment>
+										{/snippet}
 									</AsyncData>
 								</td>
 							</tr>

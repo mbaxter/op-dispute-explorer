@@ -4,8 +4,8 @@
 	import { games } from '@stores/games';
 	import NetworkRequired from '@components/NetworkRequired.svelte';
 
-	export let data;
-	$: game = $games.get(data.idx);
+	let { data } = $props();
+	let game = $derived($games.get(data.idx));
 </script>
 
 <NetworkRequired>
