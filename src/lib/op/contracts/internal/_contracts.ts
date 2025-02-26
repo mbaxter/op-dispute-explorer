@@ -11,7 +11,7 @@ import {
   type OptimismPortal2 as PortalContract,
   type SystemConfig as SystemConfigContract,
   type AnchorStateRegistry as AnchorStateRegistryContract,
-} from '@types/contracts'
+} from '../../../../types/contracts'
 import type { Providers } from '@lib/op/_providers'
 
 export class ContractsFactory {
