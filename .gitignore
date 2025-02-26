@@ -28,3 +28,8 @@ vite.config.ts.timestamp-*
 
 # Generated
 src/types/contracts/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
