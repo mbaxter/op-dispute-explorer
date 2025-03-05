@@ -6,5 +6,16 @@ export default defineConfig({
 
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
+	},
+
+	optimizeDeps: {
+		exclude: ['@sveltejs/kit']
+	},
+
+	// Add server options to handle HMR properly
+	server: {
+		fs: {
+			strict: false
+		}
 	}
 });
