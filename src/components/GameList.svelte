@@ -26,6 +26,8 @@
 		<tr>
 			<th>Index</th>
 			<th>Game Type</th>
+			<th>Status</th>
+			<th>Claims</th>
 			<th>Timestamp</th>
 			<th>Address</th>
 			<th>Root Claim</th>
@@ -37,7 +39,21 @@
 			<tr>
 				<td>{game.index}</td>
 				<td>{game.gameType}</td>
-				<td>{game.createdAt.toLocaleString()}</td>
+				<td>
+					<AsyncData promise={game.getStatus()} dataName="game status">
+						{#snippet children({ data })}
+							{data}
+						{/snippet}
+					</AsyncData>
+				</td>
+				<td>
+					<AsyncData promise={game.getClaimCount()} dataName="claim count">
+						{#snippet children({ data })}
+							{data}
+						{/snippet}
+					</AsyncData>
+				</td>
+				<td>{game.createdAt.toLocaleDateString([], { month: 'numeric', day: 'numeric' })} {game.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
 				<td><Address address={game.address} /></td>
 				<td>
 					<AsyncData promise={game.getRootClaim()} dataName="root claim">
