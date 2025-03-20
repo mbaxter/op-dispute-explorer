@@ -1,16 +1,24 @@
-[
-  {
-    "name": "Optimism Mainnet",
-    "l1": "ethereum",
-    "l2RpcUrl": "https://mainnet.optimism.io/",
-    "chainId": 10,
-    "systemConfigProxy": "0x229047fed2591dbec1eF1118d64F7aF3dB9EB290"
-  },
-  {
-    "name": "Optimism Sepolia",
-    "l1": "sepolia",
-    "l2RpcUrl": "https://sepolia.optimism.io/",
-    "chainId": 11155420,
-    "systemConfigProxy": "0x034edD2A225f7f429A63E0f1D2084B9E0A93b538"
+{
+  "networks": [
+    {
+      "name": "Optimism Mainnet",
+      "l1": "ethereum",
+      "l2RpcUrl": "https://mainnet.optimism.io/",
+      "chainId": 10,
+      "systemConfigProxy": "0x229047fed2591dbec1eF1118d64F7aF3dB9EB290"
+    },
+    {
+      "name": "Optimism Sepolia",
+      "l1": "sepolia",
+      "l2RpcUrl": "https://sepolia.optimism.io/",
+      "chainId": 11155420,
+      "systemConfigProxy": "0x034edD2A225f7f429A63E0f1D2084B9E0A93b538"
+    }
+  ],
+  "rpcs": {
+    "default": {
+      "ethereum": "https://ethereum-rpc.publicnode.com",
+      "sepolia": "https://ethereum-sepolia-rpc.publicnode.com"
+    }
   }
-]
+}
