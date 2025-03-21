@@ -3,15 +3,14 @@
     import NetworkRequired from './NetworkRequired.svelte';
     import AsyncData from './AsyncData.svelte';
     import Address from './Address.svelte';
+	import Button from './Button.svelte';
 </script>
 
 <NetworkRequired>
     <div class="p-4">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold">Network Overview</h1>
-            <a href="/games" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                View Games
-            </a>
+            <Button link="/games">View Games</Button>
         </div>
         
         <div class="network-details">

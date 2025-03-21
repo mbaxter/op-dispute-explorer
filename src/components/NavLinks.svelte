@@ -20,7 +20,7 @@
             <a 
                 href={link.path} 
                 class:font-bold={isActivePath($page.url.pathname, link.path)}
-                class:text-blue-500={isActivePath($page.url.pathname, link.path)}
+                class:text-primary={isActivePath($page.url.pathname, link.path)}
             >
                 {link.name}
             </a>

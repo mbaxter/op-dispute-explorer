@@ -58,7 +58,7 @@
 </script>
 
 <div class="container">
-	<a href="/games" class="back-link">← Back to Games</a>
+	<a href="/games" class="back-link text-primary">← Back to Games</a>
 	
 	{#if game}
 		<div class="validate-button-container">
@@ -186,7 +186,6 @@
 		top: 0;
 		left: 0;
 		padding: 0.5rem;
-		color: var(--link-color, #0066cc);
 		text-decoration: none;
 	}
 
