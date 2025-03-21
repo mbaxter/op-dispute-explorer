@@ -103,8 +103,7 @@ export class Claim {
     #calculateBlockNumber(): bigint {
         if (!this.#blockNumber) {
             const positionAtSplitDepth = this.#position.getAncestor(this.splitDepth).getRightmostDescendant(this.splitDepth);
-            const blockNumber = this.#gameMetadata.startingBlockNumber + positionAtSplitDepth.index + BigInt(1);
-            this.#blockNumber = blockNumber <= this.l2BlockNumber ? blockNumber : this.l2BlockNumber;
+            this.#blockNumber = this.#gameMetadata.startingBlockNumber + positionAtSplitDepth.index + BigInt(1);
         }
         return this.#blockNumber;
     }
