@@ -126,24 +126,15 @@
 						</td>
 					</tr>
 					<tr>
-						<td>L2 Block Number:</td>
+						<td>Starting Block Number:</td>
+						<td>
+							<AsyncData promise={game.getStartingBlockNumber()} dataName="starting block number" />
+						</td>
+					</tr>
+					<tr>
+						<td>Claim Block Number:</td>
 						<td>
 							<AsyncData promise={game.getL2BlockNumber()} dataName="L2 block number" />
-						</td>
-					</tr>
-					<tr>
-						<td>L1 Head:</td>
-						<td>
-							<AsyncData promise={game.getL1Head()} dataName="L1 head" />
-						</td>
-					</tr>
-					<tr>
-						<td>L2 Block Number Challenged:</td>
-						<td>
-							<AsyncData
-								promise={game.getL2BlockNumberChallenged()}
-								dataName="L2 block number challenged"
-							/>
 						</td>
 					</tr>
 					{#await game.getL2BlockNumberChallenged()}
@@ -151,7 +142,7 @@
 					{:then challenged}
 						{#if challenged}
 							<tr>
-								<td>L2 Block Number Challenger:</td>
+								<td>Claim Block Number Challenger:</td>
 								<td>
 									<AsyncData
 										promise={game.getL2BlockNumberChallenger()}
@@ -165,6 +156,12 @@
 							</tr>
 						{/if}
 					{/await}
+					<tr>
+						<td>L1 Head:</td>
+						<td>
+							<AsyncData promise={game.getL1Head()} dataName="L1 head" />
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>

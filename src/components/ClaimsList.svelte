@@ -1,24 +1,25 @@
 <script lang="ts">
 	import type { DisputeGame } from '@lib/op/contracts/dispute-game';
-	import type { ClaimData } from '@lib/op/contracts/claim';
+	import type { Claim } from '@lib/op/contracts/claim';
 	import { onMount } from 'svelte';
 	import Ether from './Ether.svelte';
 	import Address from './Address.svelte';
 	import TruncatedValue from './TruncatedValue.svelte';
+	import Tooltip from './Tooltip.svelte';
 	interface Props {
 		game: DisputeGame;
 	}
 
 	let { game }: Props = $props();
 
-	let claims: ClaimData[] = $state([]);
+	let claims: Claim[] = $state([]);
 	let loading = $state(true);
 	let error: string | null = $state(null);
 
 	async function loadClaims() {
 		try {
 			loading = true;
-			const claimsArray: ClaimData[] = [];
+			const claimsArray: Claim[] = [];
 			for await (const batch of game.getClaims({ descending: false })) {
 				claimsArray.push(...batch);
 			}
@@ -47,8 +48,11 @@
 			<thead>
 				<tr>
 					<th>Index</th>
-					<th>Position</th>
 					<th>Parent Index</th>
+					<th>Depth</th>
+					<th>Index</th>
+					<th>Block Number</th>
+					<th>Trace Index</th>
 					<th>Claimant</th>
 					<th>Claim</th>
 					<th>Bond</th>
@@ -59,8 +63,11 @@
 				{#each claims as claim}
 					<tr>
 						<td>{claim.index}</td>
-						<td>{claim.position}</td>
 						<td>{claim.parentIndex === 4294967295 ? '' : claim.parentIndex}</td>
+						<td><Tooltip message={`GIndex:${claim.position.gIndex.toString()}`}>{claim.position.depth}</Tooltip></td>
+						<td><Tooltip message={`GIndex:${claim.position.gIndex.toString()}`}>{claim.position.index}</Tooltip></td>
+						<td>{claim.blockNumber.toString()}</td>
+						<td>{claim.traceIndex.toString()}</td>
 						<td class="address"><Address address={claim.claimant} maxLength={16} /></td>
 						<td><TruncatedValue value={claim.claim} /></td>
 						<td><Ether wei={claim.bond} /></td>

@@ -1,6 +1,6 @@
-
-import { Clock, type ClaimData } from './claim';
-import type { Address } from '@lib/bytes';
+import { Clock, type GameMetadata, Claim } from './claim';
+import { TreePosition } from "./position";
+import type { Address, Hash } from '@lib/bytes';
 import { fetchOrderedSlice, type OrderedSliceOptions } from '@lib/fetch';
 import { 
     type ContractsFactory, 
@@ -26,8 +26,13 @@ export class DisputeGame {
     #l1Head?: string;
     #rootClaim?: string;
     #maxClockDuration?: bigint;
+    #startBlockNumber?: bigint;
+    #startingBlockHash?: Hash;
+    #l2BlockNumber?: bigint;
     #l2BlockNumberChallenged?: boolean;
     #l2BlockNumberChallenger?: Address;
+    #maxGameDepth?: number;
+    #splitDepth?: number;
 
     constructor(params: {
         providers: Providers,
@@ -109,8 +114,25 @@ export class DisputeGame {
         return this.#maxClockDuration!;
     }
 
+    async getStartingBlockNumber(): Promise<bigint> {
+        if (!this.#startBlockNumber) {
+            this.#startBlockNumber = await this.#contract.startingBlockNumber();
+        }
+        return this.#startBlockNumber!;
+    }
+
+    async getStartingBlockHash(): Promise<Hash> {
+        if (!this.#startingBlockHash) {
+            this.#startingBlockHash = await this.#contract.startingRootHash();
+        }
+        return this.#startingBlockHash!;
+    }
+
     async getL2BlockNumber(): Promise<bigint> {
-        return await this.#contract.l2BlockNumber();
+        if (!this.#l2BlockNumber) {
+            this.#l2BlockNumber = await this.#contract.l2BlockNumber();
+        }
+        return this.#l2BlockNumber!;
     }
 
     async getL2BlockNumberChallenged(): Promise<boolean> {
@@ -127,36 +149,67 @@ export class DisputeGame {
         return this.#l2BlockNumberChallenger;
     }
 
+    async getMaxGameDepth(): Promise<number> {
+        if (!this.#maxGameDepth) {
+            this.#maxGameDepth = Number(await this.#contract.maxGameDepth());
+        }
+        return this.#maxGameDepth!;
+    }   
+
+    async getSplitDepth(): Promise<number> {
+        if (!this.#splitDepth) {
+            this.#splitDepth = Number(await this.#contract.splitDepth());
+        }
+        return this.#splitDepth!;
+    }
+
+    async #getGameMetadata(): Promise<GameMetadata> {
+        // Load any required data not already cached
+        const data = await Promise.all([
+            this.getMaxGameDepth(),
+            this.getSplitDepth(),
+            this.getStartingBlockNumber(),
+            this.getL2BlockNumber()
+        ]);
+
+        // Return a simple object with the metadata
+        return {
+            maxDepth: data[0],
+            splitDepth: data[1],
+            startingBlockNumber: data[2],
+            l2BlockNumber: data[3]
+        };
+    }
+
     async getClaimCount(): Promise<number> {
         const count = await this.#contract.claimDataLen();
         return Number(count);
     }
 
-    async getClaimData(index: number): Promise<ClaimData> {
-        return await this.#getClaimAtIndex(index);
-    }
-
-    async #getClaimAtIndex(index: number): Promise<ClaimData> {
-        const claim = await this.#contract.claimData(index);
-        return {
+    async #getClaimAtIndex(index: number, metadata: GameMetadata): Promise<Claim> {
+        const claimData = await this.#contract.claimData(index);
+        return new Claim({
             index,
-            parentIndex: Number(claim.parentIndex),
-            counteredBy: claim.counteredBy as Address,
-            claimant: claim.claimant as Address,
-            bond: claim.bond,
-            claim: claim.claim,
-            position: claim.position,
-            clock: new Clock(claim.clock)
-        };
+            parentIndex: Number(claimData.parentIndex),
+            counteredBy: claimData.counteredBy as Address,
+            claimant: claimData.claimant as Address,
+            bond: claimData.bond,
+            claim: claimData.claim,
+            position: TreePosition.fromGIndex(claimData.position),
+            clock: new Clock(claimData.clock),
+            gameMetadata: metadata
+        });
     }
 
-    async *getClaims(options: OrderedSliceOptions = {}): AsyncGenerator<ClaimData[]> {
+    async *getClaims(options: OrderedSliceOptions = {}): AsyncGenerator<Claim[]> {
         const getTotalItems = async () => {
             return await this.getClaimCount();
         };
 
-        const getElement = async (idx: number): Promise<ClaimData> => {
-            return await this.#getClaimAtIndex(idx);
+        const metadata = await this.#getGameMetadata();
+
+        const getElement = async (idx: number): Promise<Claim> => {
+            return await this.#getClaimAtIndex(idx, metadata);
         };
 
         yield* fetchOrderedSlice(getTotalItems, getElement, { ...options });
