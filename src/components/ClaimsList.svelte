@@ -48,9 +48,9 @@
 			<thead>
 				<tr>
 					<th>Index</th>
-					<th>Parent Index</th>
-					<th>Depth</th>
-					<th>Index</th>
+					<th>Parent</th>
+					<th>Tree Depth</th>
+					<th>Tree Index</th>
 					<th>Block Number</th>
 					<th>Trace Index</th>
 					<th>Claimant</th>
