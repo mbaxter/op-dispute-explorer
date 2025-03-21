@@ -7,6 +7,7 @@
 	import Address from './Address.svelte';
 	import TruncatedValue from './TruncatedValue.svelte';
 	import GameType from './GameType.svelte';
+	import GameStatus from './GameStatus.svelte';
 </script>
 
 <div class="mb-4 flex items-center justify-end gap-4">
@@ -43,7 +44,7 @@
 				<td>
 					<AsyncData promise={game.getStatus()} dataName="game status">
 						{#snippet children({ data })}
-							{data}
+							<GameStatus value={data} />
 						{/snippet}
 					</AsyncData>
 				</td>
@@ -59,7 +60,7 @@
 				<td>
 					<AsyncData promise={game.getRootClaim()} dataName="root claim">
 						{#snippet children({ data })}				
-							<TruncatedValue value={data} />
+							<TruncatedValue value={data} maxLength={12} />
 						{/snippet}
 					</AsyncData></td>
 				<td class="flex items-center gap-2">

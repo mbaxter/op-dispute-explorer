@@ -10,6 +10,7 @@
 	import { BlockNotFoundError } from '@lib/blocks';
 	import L1Block from './L1Block.svelte';
 	import GameType from './GameType.svelte';
+	import GameStatus from './GameStatus.svelte';
 	interface Props {
 		index: number;
 	}
@@ -84,7 +85,13 @@
 					</tr>
 					<tr>
 						<td>Game Status:</td>
-						<td><AsyncData promise={game.getStatus()} dataName="game status" /></td>
+						<td>
+							<AsyncData promise={game.getStatus()} dataName="game status">
+								{#snippet children({ data })}
+									<GameStatus value={data} />
+								{/snippet}
+							</AsyncData>
+						</td>
 					</tr>
 					<tr>
 						<td>Game Address:</td>

@@ -1,11 +1,6 @@
 <script lang="ts">
 	import Tooltip from "./Tooltip.svelte";
-
-    export interface Props {
-		value: String|number;
-	}
-
-	let { value }: Props = $props();
+    export let value: String|number;
 </script>
 
 <Tooltip message={`Game Type: ${value.toString()}`}>
