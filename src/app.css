@@ -5,3 +5,33 @@
 a:hover {
     text-decoration: underline;
 }
+
+select {
+    @apply block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:ring-1 focus:ring-primary;
+
+    option:selected {
+        @apply bg-primary text-white;
+    }
+}
+
+select,
+select:focus,
+select:active,
+select:hover,
+select:focus-visible,
+select:-moz-focusring {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-focus-ring-color: transparent;
+    border: 0;
+}
+
+select option {
+    background-color: white;
+    color: gray;
+}
+  
+select option:checked,
+select option[selected] {
+    @apply bg-primary text-white;
+}
