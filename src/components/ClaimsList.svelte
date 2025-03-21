@@ -69,7 +69,7 @@
 						<td>{claim.blockNumber.toString()}</td>
 						<td>{claim.traceIndex.toString()}</td>
 						<td class="address"><Address address={claim.claimant} maxLength={16} /></td>
-						<td><TruncatedValue value={claim.claim} /></td>
+						<td><TruncatedValue maxLength={14} value={claim.claim} /></td>
 						<td><Ether wei={claim.bond} /></td>
 						<td class="address">
 							<Address address={claim.counteredBy} maxLength={16} />
