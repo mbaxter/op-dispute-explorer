@@ -8,6 +8,7 @@
 	import ValidationIcon from './ValidationIcon.svelte';
 	import Button from './Button.svelte';
 	import { BlockNotFoundError } from '@lib/blocks';
+	import L1Block from './L1Block.svelte';
 	interface Props {
 		index: number;
 	}
@@ -159,7 +160,11 @@
 					<tr>
 						<td>L1 Head:</td>
 						<td>
-							<AsyncData promise={game.getL1Head()} dataName="L1 head" />
+							<AsyncData promise={game.getL1Head()} dataName="L1 head">
+								{#snippet children({ data })}
+									<L1Block identifier={data} />
+	                            {/snippet}
+							</AsyncData>
 						</td>
 					</tr>
 				</tbody>
