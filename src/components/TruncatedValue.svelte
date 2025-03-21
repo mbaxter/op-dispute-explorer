@@ -13,10 +13,10 @@
 </script>
 
 <div class="truncated-container">
+	<CopyButton {value} />
 	<Tooltip message={value}>
 		<span>{displayValue}</span>
 	</Tooltip>
-	<CopyButton {value} />
 </div>
 
 <style>
