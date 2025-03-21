@@ -6,6 +6,7 @@
 	import { cancelLoadGames } from '@stores/games';
 	import Address from './Address.svelte';
 	import TruncatedValue from './TruncatedValue.svelte';
+	import GameType from './GameType.svelte';
 </script>
 
 <div class="mb-4 flex items-center justify-end gap-4">
@@ -38,7 +39,7 @@
 		{#each $sortedGames as game}
 			<tr>
 				<td>{game.index}</td>
-				<td>{game.gameType}</td>
+				<td><GameType value={game.gameType} /></td>
 				<td>
 					<AsyncData promise={game.getStatus()} dataName="game status">
 						{#snippet children({ data })}

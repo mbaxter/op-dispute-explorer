@@ -4,6 +4,7 @@
     import AsyncData from './AsyncData.svelte';
     import Address from './Address.svelte';
 	import Button from './Button.svelte';
+	import GameType from './GameType.svelte';
 </script>
 
 <NetworkRequired>
@@ -22,7 +23,11 @@
                             <AsyncData 
                                 promise={$opChain!.getRespectedGameType()}
                                 dataName="respected game type" 
-                            />
+                            >
+                                {#snippet children({ data })}
+                                    <GameType value={data} />
+                                {/snippet}
+                            </AsyncData>
                         </td>
                     </tr>
                     <tr>
