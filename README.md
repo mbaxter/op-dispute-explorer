@@ -1,6 +1,6 @@
 # Optimism Dispute Explorer
 
-A client-side application for exploring dispute games on the Optimism Superchain. 
+An experimental WIP client-side application for exploring dispute games on the Optimism Superchain. 
 
 Built with [`sv`](https://github.com/sveltejs/cli).
 
