@@ -128,7 +128,13 @@
 						<td>{game.createdAt.toLocaleString()}</td>
 					</tr>
 					<tr>
-						<td>Root Claim:</td>
+						<td>Claim Block Number:</td>
+						<td>
+							<AsyncData promise={game.getL2BlockNumber()} dataName="L2 block number" />
+						</td>
+					</tr>
+					<tr>
+						<td>Claim Output Root:</td>
 						<td class="root-claim">
 							<AsyncData promise={game.getRootClaim()} dataName="root claim" />
 							<ValidationIcon {isValid} {validationError} />
@@ -144,12 +150,6 @@
 						<td>Starting Output Root:</td>
 						<td>
 							<AsyncData promise={game.getStartingRootHash()} dataName="starting output root" />
-						</td>
-					</tr>
-					<tr>
-						<td>Claim Block Number:</td>
-						<td>
-							<AsyncData promise={game.getL2BlockNumber()} dataName="L2 block number" />
 						</td>
 					</tr>
 					{#await game.getL2BlockNumberChallenged()}
