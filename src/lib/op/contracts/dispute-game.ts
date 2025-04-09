@@ -27,7 +27,7 @@ export class DisputeGame {
     #rootClaim?: string;
     #maxClockDuration?: bigint;
     #startBlockNumber?: bigint;
-    #startingBlockHash?: Hash;
+    #startingRootHash?: Hash;
     #l2BlockNumber?: bigint;
     #l2BlockNumberChallenged?: boolean;
     #l2BlockNumberChallenger?: Address;
@@ -121,11 +121,11 @@ export class DisputeGame {
         return this.#startBlockNumber!;
     }
 
-    async getStartingBlockHash(): Promise<Hash> {
-        if (!this.#startingBlockHash) {
-            this.#startingBlockHash = await this.#contract.startingRootHash();
+    async getStartingRootHash(): Promise<Hash> {
+        if (!this.#startingRootHash) {
+            this.#startingRootHash = await this.#contract.startingRootHash();
         }
-        return this.#startingBlockHash!;
+        return this.#startingRootHash!;
     }
 
     async getL2BlockNumber(): Promise<bigint> {

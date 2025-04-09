@@ -141,6 +141,12 @@
 						</td>
 					</tr>
 					<tr>
+						<td>Starting Output Root:</td>
+						<td>
+							<AsyncData promise={game.getStartingRootHash()} dataName="starting output root" />
+						</td>
+					</tr>
+					<tr>
 						<td>Claim Block Number:</td>
 						<td>
 							<AsyncData promise={game.getL2BlockNumber()} dataName="L2 block number" />
